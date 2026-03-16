@@ -3,1835 +3,1099 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>On Point Group - Project Financial System</title>
-    
-    <!-- CSS Dependencies -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
+    <title>OnPoint Group - Project Management Dashboard</title>
     <style>
-        :root {
-            --primary: #1e3c72;
-            --secondary: #2a5298;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --info: #17a2b8;
-            --light: #f8f9fa;
-            --dark: #343a40;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        .main-container {
-            max-width: 1600px;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
         }
-        
-        .company-header {
+
+        /* Header Styles */
+        .header {
             background: white;
-            border-radius: 20px;
-            padding: 25px 30px;
-            margin-bottom: 25px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            border-bottom: 4px solid var(--primary);
-        }
-        
-        .company-title {
-            color: var(--primary);
-            font-size: 42px;
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 5px;
-        }
-        
-        .company-subtitle {
-            color: #6c757d;
-            font-size: 16px;
-            font-weight: 400;
-        }
-        
-        .connection-status {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-left: 15px;
-        }
-        
-        .status-connected {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .status-connected i {
-            color: #28a745;
-        }
-        
-        .status-disconnected {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .status-disconnected i {
-            color: #dc3545;
-        }
-        
-        .status-checking {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-        }
-        
-        .revenue-model-badge {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .nav-custom {
-            background: white;
-            border-radius: 15px;
-            padding: 10px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-        
-        .nav-custom .nav {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-        
-        .nav-custom .nav-link {
-            color: #6c757d;
-            padding: 12px 25px;
+            padding: 20px 30px;
             border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            color: #1a1a1a;
+            font-size: 24px;
+        }
+
+        .logo span {
+            color: #4361ee;
+            font-weight: 300;
+        }
+
+        .connection-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f59e0b;
+        }
+
+        .status-dot.connected {
+            background: #10b981;
+        }
+
+        .status-dot.error {
+            background: #ef4444;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
             border: none;
-            background: transparent;
+            border-radius: 5px;
             cursor: pointer;
-        }
-        
-        .nav-custom .nav-link:hover {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-        }
-        
-        .nav-custom .nav-link.active {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-        }
-        
-        .nav-custom .nav-link i {
-            margin-right: 8px;
-        }
-        
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-            background: white;
-        }
-        
-        .card-header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border-radius: 15px 15px 0 0 !important;
-            padding: 15px 20px;
-            font-weight: 600;
-            font-size: 16px;
-            border: none;
-        }
-        
-        .card-header i {
-            margin-right: 10px;
-        }
-        
-        .card-header.bg-light {
-            background: #f8f9fa !important;
-            color: var(--dark);
-            border-bottom: 2px solid var(--primary);
-        }
-        
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        
-        .kpi-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            border-left: 4px solid var(--primary);
-        }
-        
-        .kpi-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--dark);
-            margin: 5px 0;
-        }
-        
-        .kpi-label {
-            color: #6c757d;
             font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: 500;
+            transition: all 0.3s;
         }
-        
-        .table-container {
+
+        .btn-primary {
+            background: #4361ee;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #3046b3;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #059669;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background: #d97706;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Error Banner */
+        .error-banner {
+            background: #ef4444;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .error-banner.show {
+            display: flex;
+        }
+
+        .error-banner button {
             background: white;
-            border-radius: 15px;
+            color: #ef4444;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .card .value {
+            color: #1a1a1a;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .card .subtitle {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* Project Sections */
+        .project-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .project-header {
+            background: #4361ee;
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .project-header.onpoint {
+            background: #1e3c72;
+        }
+
+        .project-header.aqua {
+            background: #0f4c5c;
+        }
+
+        .project-header.nkanyezi {
+            background: #6b4f8c;
+        }
+
+        .project-totals {
+            font-size: 14px;
+            font-weight: normal;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        /* Table Styles */
+        .table-container {
             padding: 20px;
             overflow-x: auto;
         }
-        
-        .table {
-            margin-bottom: 0;
-            font-size: 14px;
+
+        table {
             width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
         }
-        
-        .table thead th {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
+
+        th {
+            background: #f8f9fa;
+            color: #1a1a1a;
             padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
             white-space: nowrap;
         }
-        
-        .table tbody td {
-            padding: 10px 12px;
-            vertical-align: middle;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .badge-confirmed {
-            background: #28a745;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .badge-forecast {
-            background: #ffc107;
-            color: #333;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .form-container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 5px;
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
             font-size: 13px;
+            white-space: nowrap;
         }
-        
-        .form-control, .form-select {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 10px 15px;
-            font-size: 14px;
-            width: 100%;
+
+        tbody tr:hover {
+            background: #f5f5f5;
         }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.25);
-            outline: none;
-        }
-        
-        .report-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 20px;
-        }
-        
-        .report-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--primary);
-        }
-        
-        .report-header h2 {
-            color: var(--primary);
-            font-size: 32px;
-            font-weight: 700;
-            margin: 0;
-        }
-        
-        .report-header h3 {
-            color: #6c757d;
-            font-size: 18px;
-            font-weight: 400;
-            margin: 5px 0 0;
-        }
-        
-        .report-metrics {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin: 30px 0;
-        }
-        
-        .metric-card {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        
-        .metric-card .value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .metric-card .label {
-            color: #6c757d;
-            font-size: 13px;
-            text-transform: uppercase;
-        }
-        
-        .sector-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .sector-card {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            border-left: 4px solid;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .sector-card.electrical { border-left-color: #ff6b6b; }
-        .sector-card.telecoms { border-left-color: #4facfe; }
-        .sector-card.civil { border-left-color: #43e97b; }
-        .sector-card.buildings { border-left-color: #fa709a; }
-        .sector-card.roads { border-left-color: #fcb045; }
-        .sector-card.mechanical { border-left-color: #5f0a87; }
-        
-        .status-message {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 10px;
-            color: white;
+
+        /* Percentage Colors */
+        .high-risk {
+            color: #dc2626;
             font-weight: 600;
-            z-index: 9999;
-            animation: slideIn 0.3s;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+
+        .medium-risk {
+            color: #f59e0b;
+            font-weight: 600;
         }
-        
-        .status-success { background: #28a745; }
-        .status-error { background: #dc3545; }
-        .status-info { background: #17a2b8; }
-        
-        .loading-overlay {
+
+        .low-risk {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .icon-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .icon-btn.edit {
+            background: #4361ee;
+            color: white;
+        }
+
+        .icon-btn.save {
+            background: #10b981;
+            color: white;
+        }
+
+        .icon-btn.delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .icon-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.95);
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4361ee;
+        }
+
+        .form-group input[readonly] {
+            background: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        /* Loading Spinner */
+        .loading-overlay {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            z-index: 2000;
             justify-content: center;
             align-items: center;
-            z-index: 10000;
         }
-        
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
         .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4361ee;
+            border-radius: 50%;
             width: 50px;
             height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary);
-            border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
-            padding: 10px 25px;
+
+        /* Filter Section */
+        .filters {
+            background: white;
+            padding: 15px 20px;
             border-radius: 10px;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
-        }
-        
-        .btn-outline-primary {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            padding: 8px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-outline-primary:hover {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-outline-secondary {
-            background: transparent;
-            border: 2px solid #6c757d;
-            color: #6c757d;
-            padding: 8px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-outline-secondary:hover {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-success {
-            background: #28a745;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 10px;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-        }
-        
-        .text-end {
-            text-align: right;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        .text-danger { color: #dc3545; }
-        .text-success { color: #28a745; }
-        .text-muted { color: #6c757d; }
-        
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-3 { margin-top: 1rem; }
-        .mt-4 { margin-top: 1.5rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-3 { margin-bottom: 1rem; }
-        .mb-4 { margin-bottom: 1.5rem; }
-        .me-2 { margin-right: 0.5rem; }
-        .ms-2 { margin-left: 0.5rem; }
-        
-        .row {
+            margin-bottom: 20px;
             display: flex;
+            gap: 15px;
             flex-wrap: wrap;
-            margin: 0 -12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
-        .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-lg-4, .col-lg-6, .col-lg-8 {
-            padding: 0 12px;
-            box-sizing: border-box;
+
+        .filter-input, .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            min-width: 200px;
+            flex: 1;
         }
-        
-        .col-md-3 { width: 25%; }
-        .col-md-4 { width: 33.333%; }
-        .col-md-6 { width: 50%; }
-        .col-md-8 { width: 66.667%; }
-        .col-lg-4 { width: 33.333%; }
-        .col-lg-6 { width: 50%; }
-        .col-lg-8 { width: 66.667%; }
-        
-        @media (max-width: 768px) {
-            .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-lg-4, .col-lg-6, .col-lg-8 {
-                width: 100%;
-                margin-bottom: 15px;
-            }
-            
-            .company-title {
-                font-size: 32px;
-            }
-            
-            .kpi-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .report-metrics {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .d-flex {
-            display: flex;
-        }
-        
-        .justify-content-between {
-            justify-content: space-between;
-        }
-        
-        .justify-content-end {
-            justify-content: flex-end;
-        }
-        
-        .align-items-center {
-            align-items: center;
-        }
-        
-        .gap-2 {
-            gap: 0.5rem;
-        }
-        
-        .w-100 {
-            width: 100%;
-        }
-        
-        .mx-auto {
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .no-print {
-            @media print {
-                display: none;
-            }
-        }
-        
-        hr {
-            border: none;
-            border-top: 1px solid #dee2e6;
-            margin: 1rem 0;
-        }
-        
-        .connection-info {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 5px;
-        }
-        
-        .connection-info i {
-            margin-right: 5px;
-        }
-        
-        .config-details {
-            font-size: 11px;
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 50px;
             color: #999;
-            margin-top: 5px;
-            border-top: 1px dashed #dee2e6;
-            padding-top: 5px;
+        }
+
+        .empty-state p {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <div style="margin-top: 20px; color: var(--primary); font-weight: 600;" id="loadingMessage">Loading data from Google Sheets...</div>
-    </div>
-    
-    <!-- Main Container -->
-    <div class="main-container">
+    <div class="container">
         <!-- Header -->
-        <div class="company-header">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            <div class="company-title">
-                                ON POINT GROUP
-                            </div>
-                            <div class="company-subtitle">
-                                Project Financial Management System
-                            </div>
-                        </div>
-                        <div class="connection-status status-checking ms-3" id="connectionStatus">
-                            <i class="fas fa-sync-alt fa-spin me-2"></i> Connecting to Google Sheets...
-                        </div>
-                    </div>
-                    <div class="connection-info" id="connectionDetails">
-                        <i class="fas fa-database"></i> Loading configuration...
-                    </div>
-                </div>
-                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                    <span class="revenue-model-badge">
-                        <i class="fas fa-chart-line"></i> Revenue Model
-                    </span>
-                    <div class="mt-2 text-muted">
-                        <i class="fas fa-calendar"></i> <span id="currentDate"></span>
-                    </div>
+        <div class="header">
+            <div class="logo">
+                <h1>OnPoint <span>Group</span></h1>
+                <div class="connection-info">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Connecting to Google Sheets...</span>
+                    <span id="sheetInfo" style="font-size: 11px; color: #999;"></span>
                 </div>
             </div>
-        </div>
-        
-        <!-- Navigation -->
-        <div class="nav-custom no-print">
-            <div class="nav">
-                <button class="nav-link active" onclick="showTab('dashboard', this)">
-                    <i class="fas fa-chart-pie"></i> Dashboard
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="openAddModal()" id="addBtn">
+                    <span>+</span> Add New Entry
                 </button>
-                <button class="nav-link" onclick="showTab('orderbook', this)">
-                    <i class="fas fa-book"></i> Order Book
+                <button class="btn btn-success" onclick="exportToDrive()" id="exportBtn">
+                    <span>📥</span> Export to Drive
                 </button>
-                <button class="nav-link" onclick="showTab('dataentry', this)">
-                    <i class="fas fa-edit"></i> Data Entry
-                </button>
-                <button class="nav-link" onclick="showTab('financial', this)">
-                    <i class="fas fa-file-invoice-dollar"></i> Financial Report
+                <button class="btn btn-warning" onclick="loadData()" id="refreshBtn">
+                    <span>↻</span> Refresh
                 </button>
             </div>
         </div>
-        
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content">
-            <!-- KPI Cards -->
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-label">Total Order Book</div>
-                    <div class="kpi-value" id="totalOrderBook">R 0</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Confirmed</div>
-                    <div class="kpi-value" id="confirmedTotal">R 0</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Forecast</div>
-                    <div class="kpi-value" id="forecastTotal">R 0</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Gross Margin</div>
-                    <div class="kpi-value" id="grossMargin">0%</div>
-                </div>
-            </div>
-            
-            <!-- Project Manager Summary -->
+
+        <!-- Error Banner -->
+        <div class="error-banner" id="errorBanner">
+            <span id="errorMessage"></span>
+            <button onclick="hideError()">Dismiss</button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards" id="summaryCards">
             <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-users"></i> Project Manager Summary
-                </div>
-                <div class="card-body">
-                    <div class="table-container">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Project Manager</th>
-                                    <th>Category</th>
-                                    <th>Confirmed</th>
-                                    <th>Forecast</th>
-                                    <th>Total</th>
-                                    <th>Projects</th>
-                                </tr>
-                            </thead>
-                            <tbody id="managerSummaryBody">
-                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <h3>Loading...</h3>
+                <div class="value">Please wait</div>
             </div>
         </div>
-        
-        <!-- Order Book Tab -->
-        <div id="orderbook" class="tab-content" style="display:none;">
-            <!-- Filters -->
-            <div class="card no-print">
-                <div class="card-header">
-                    <i class="fas fa-filter"></i> Filter Order Book
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label class="form-label">Category</label>
-                            <select class="form-select" id="categoryFilter">
-                                <option value="All">All Categories</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Project Manager</label>
-                            <select class="form-select" id="managerFilter">
-                                <option value="All">All Managers</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Status</label>
-                            <select class="form-select" id="statusFilter">
-                                <option value="All">All Status</option>
-                                <option value="Confirmed">Confirmed</option>
-                                <option value="Forecast">Forecast</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-primary w-100 mt-4" onclick="applyFilters()">
-                                <i class="fas fa-search"></i> Apply Filters
-                            </button>
-                        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <input type="text" class="filter-input" id="searchInput" placeholder="Search by project manager..." onkeyup="filterData()">
+            <select class="filter-select" id="projectFilter" onchange="filterData()">
+                <option value="">All Projects</option>
+                <option value="On Point">On Point</option>
+                <option value="Aqua Telecoms">Aqua Telecoms</option>
+                <option value="Nkanyezi">Nkanyezi</option>
+            </select>
+            <select class="filter-select" id="riskFilter" onchange="filterData()">
+                <option value="">All Risk Levels</option>
+                <option value="high">High Risk (>100%)</option>
+                <option value="medium">Medium Risk (70-100%)</option>
+                <option value="low">Low Risk (<70%)</option>
+            </select>
+        </div>
+
+        <!-- Projects Container -->
+        <div id="projectsContainer">
+            <div class="empty-state">
+                <p>Loading data from Google Sheets...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="dataModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Add New Project Entry</h2>
+            <form id="dataForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Project *</label>
+                        <select id="project" required>
+                            <option value="">Select Project</option>
+                            <option value="On Point">On Point</option>
+                            <option value="Aqua Telecoms">Aqua Telecoms</option>
+                            <option value="Nkanyezi">Nkanyezi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Project Manager *</label>
+                        <input type="text" id="projectManager" required placeholder="Enter manager name">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmed (R)</label>
+                        <input type="number" id="confirmed" step="0.01" value="0" oninput="calculateFields()">
+                    </div>
+                    <div class="form-group">
+                        <label>Forecast (R)</label>
+                        <input type="number" id="forecast" step="0.01" value="0" oninput="calculateFields()">
+                    </div>
+                    <div class="form-group">
+                        <label>Adjusted Plan (50% of Forecast)</label>
+                        <input type="number" id="adjustedPlan" step="0.01" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Capacity (R)</label>
+                        <input type="number" id="capacity" step="0.01" value="0" oninput="calculateFields()">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmed / Capacity %</label>
+                        <input type="text" id="confirmedCapacityPct" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Adjusted Capacity (75% of Capacity)</label>
+                        <input type="number" id="adjustedCapacity" step="0.01" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmed / Adjusted Capacity %</label>
+                        <input type="text" id="confirmedAdjustedPct" readonly>
                     </div>
                 </div>
-            </div>
+                <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px;" id="saveBtn">Save Entry</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // =============================================
+        // GOOGLE APPS SCRIPT URL - REPLACE WITH YOUR URL
+        // =============================================
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLuOPSENnUKCifL6poZTng1Yx99WgZOoKROuGe1P1hA5qCJR25Vt183-p1MbPBJCD-Ww/exec';
+        
+        // Sheet configuration (for display)
+        const SHEET_ID = '1mBZYZg4ZjsNP_Juj2-G6WC-cGCkK7IUD65qW-5mQitA';
+        const SHEET_NAME = 'kpis';
+        const DRIVE_FOLDER_ID = '1al8guXtgk-PJWwdNvd2umUXYv4AvwXSM';
+
+        // Global variables
+        let allData = [];
+        let filteredData = [];
+        let editingIndex = -1;
+        let retryCount = 0;
+        const MAX_RETRIES = 3;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing...');
+            console.log('Sheet ID:', SHEET_ID);
+            console.log('Sheet Name:', SHEET_NAME);
+            console.log('Drive Folder ID:', DRIVE_FOLDER_ID);
             
-            <!-- Order Book Table -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-list"></i> Complete Order Book
-                </div>
-                <div class="card-body">
-                    <div class="table-container">
-                        <table class="table table-hover" id="orderBookTable">
-                            <thead>
-                                <tr>
-                                    <th>Category</th>
-                                    <th>Project Manager</th>
-                                    <th>Project</th>
-                                    <th>Status</th>
-                                    <th>Amount</th>
-                                    <th>Mar-26</th>
-                                    <th>Apr-26</th>
-                                    <th>May-26</th>
-                                    <th>Jun-26</th>
-                                    <th>Jul-26</th>
-                                    <th>Aug-26</th>
-                                    <th>Sep-26</th>
-                                    <th>Oct-26</th>
-                                    <th>Nov-26</th>
-                                    <th>Dec-26</th>
-                                    <th>Jan-27</th>
-                                    <th>Feb-27</th>
-                                    <th>Total</th>
-                                    <th>Check</th>
-                                </tr>
-                            </thead>
-                            <tbody id="orderBookBody">
-                                <tr><td colspan="19" class="text-center">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Data Entry Tab -->
-        <div id="dataentry" class="tab-content" style="display:none;">
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div class="form-container">
-                        <h4 class="mb-4"><i class="fas fa-pen"></i> Project Data Entry</h4>
-                        
-                        <form id="projectForm" onsubmit="event.preventDefault();">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Category *</label>
-                                    <select class="form-select" id="projectCategory" required>
-                                        <option value="">Select Category</option>
-                                        <option value="Electrical">Electrical</option>
-                                        <option value="Civil">Civil</option>
-                                        <option value="Mechanical">Mechanical</option>
-                                        <option value="General Buildings">General Buildings</option>
-                                        <option value="Roads">Roads</option>
-                                        <option value="Telecoms">Telecoms</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Project Manager *</label>
-                                    <input type="text" class="form-control" id="projectManager" list="managersList" required placeholder="Type or select manager">
-                                    <datalist id="managersList"></datalist>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-8 mb-3">
-                                    <label class="form-label">Project Name *</label>
-                                    <input type="text" class="form-control" id="projectName" required placeholder="Enter project name">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Status *</label>
-                                    <select class="form-select" id="projectStatus" required>
-                                        <option value="Confirmed">Confirmed</option>
-                                        <option value="Forecast">Forecast</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Total Amount (R) *</label>
-                                    <input type="number" class="form-control" id="totalAmount" step="1000" min="0" required placeholder="e.g., 28400000">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Margin %</label>
-                                    <input type="number" class="form-control" id="margin" step="0.1" min="0" max="100" value="30">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Retention %</label>
-                                    <input type="number" class="form-control" id="retention" step="0.1" min="0" max="20" value="10">
-                                </div>
-                            </div>
-                            
-                            <div class="card mb-4">
-                                <div class="card-header bg-light text-dark">
-                                    Monthly Distribution (Mar 2026 - Feb 2027)
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Mar-26</label>
-                                            <input type="number" class="form-control month-input" id="mar26" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Apr-26</label>
-                                            <input type="number" class="form-control month-input" id="apr26" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">May-26</label>
-                                            <input type="number" class="form-control month-input" id="may26" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Jun-26</label>
-                                            <input type="number" class="form-control month-input" id="jun26" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Jul-26</label>
-                                            <input type="number" class="form-control month-input" id="jul26" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Aug-26</label>
-                                            <input type="number" class="form-control month-input" id="aug26" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Sep-26</label>
-                                            <input type="number" class="form-control month-input" id="sep26" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Oct-26</label>
-                                            <input type="number" class="form-control month-input" id="oct26" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Nov-26</label>
-                                            <input type="number" class="form-control month-input" id="nov26" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Dec-26</label>
-                                            <input type="number" class="form-control month-input" id="dec26" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Jan-27</label>
-                                            <input type="number" class="form-control month-input" id="jan27" value="0" min="0" step="1000">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label">Feb-27</label>
-                                            <input type="number" class="form-control month-input" id="feb27" value="0" min="0" step="1000">
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row mt-3">
-                                        <div class="col-md-6">
-                                            <button type="button" class="btn btn-outline-primary" onclick="distributeEvenly()">
-                                                <i class="fas fa-calculator"></i> Distribute Evenly
-                                            </button>
-                                        </div>
-                                        <div class="col-md-6 text-end">
-                                            <strong>Total Scheduled: R <span id="scheduledTotal">0</span></strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Notes / Comments</label>
-                                <textarea class="form-control" id="projectNotes" rows="2" placeholder="Add any notes or comments..."></textarea>
-                            </div>
-                            
-                            <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-primary" onclick="submitProject()">
-                                    <i class="fas fa-save"></i> Save Project
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
-                                    <i class="fas fa-undo"></i> Reset Form
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Financial Report Tab -->
-        <div id="financial" class="tab-content" style="display:none;">
-            <div class="report-section">
-                <div class="report-header">
-                    <h2>ON POINT GROUP</h2>
-                    <h3>Revenue Model & Order Book Report</h3>
-                    <p class="text-muted">Generated: <span id="reportDate"></span></p>
-                </div>
+            // Update sheet info display
+            document.getElementById('sheetInfo').textContent = `Sheet: ${SHEET_NAME}`;
+            
+            // Load data
+            loadData();
+        });
+
+        // Helper Functions
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('addBtn').disabled = true;
+            document.getElementById('exportBtn').disabled = true;
+            document.getElementById('refreshBtn').disabled = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('addBtn').disabled = false;
+            document.getElementById('exportBtn').disabled = false;
+            document.getElementById('refreshBtn').disabled = false;
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorBanner').classList.add('show');
+            document.getElementById('statusDot').className = 'status-dot error';
+            document.getElementById('statusText').textContent = 'Connection Error';
+        }
+
+        function hideError() {
+            document.getElementById('errorBanner').classList.remove('show');
+        }
+
+        function updateConnectionStatus(connected, message = '') {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (connected) {
+                dot.className = 'status-dot connected';
+                text.textContent = message || 'Connected to Google Sheets';
+            } else {
+                dot.className = 'status-dot error';
+                text.textContent = message || 'Disconnected';
+            }
+        }
+
+        function formatNumber(num) {
+            if (num === undefined || num === null) return '0';
+            return parseFloat(num).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function formatCurrency(num) {
+            if (num === undefined || num === null) return 'R 0';
+            return 'R ' + formatNumber(num);
+        }
+
+        function parsePercentage(pct) {
+            if (!pct) return 0;
+            return parseFloat(pct.toString().replace('%', '')) || 0;
+        }
+
+        function getRiskClass(percentage) {
+            const pct = parsePercentage(percentage);
+            if (pct > 100) return 'high-risk';
+            if (pct > 70) return 'medium-risk';
+            return 'low-risk';
+        }
+
+        // Calculate fields in modal
+        function calculateFields() {
+            const confirmed = parseFloat(document.getElementById('confirmed').value) || 0;
+            const forecast = parseFloat(document.getElementById('forecast').value) || 0;
+            const capacity = parseFloat(document.getElementById('capacity').value) || 0;
+
+            // Calculate adjusted plan (50% of forecast)
+            const adjustedPlan = forecast * 0.5;
+            document.getElementById('adjustedPlan').value = adjustedPlan.toFixed(2);
+
+            // Calculate adjusted capacity (75% of capacity)
+            const adjustedCapacity = capacity * 0.75;
+            document.getElementById('adjustedCapacity').value = adjustedCapacity.toFixed(2);
+
+            // Calculate percentages
+            const confirmedCapacityPct = capacity > 0 ? ((confirmed / capacity) * 100).toFixed(1) + '%' : '0%';
+            const confirmedAdjustedPct = adjustedCapacity > 0 ? ((confirmed / adjustedCapacity) * 100).toFixed(1) + '%' : '0%';
+
+            document.getElementById('confirmedCapacityPct').value = confirmedCapacityPct;
+            document.getElementById('confirmedAdjustedPct').value = confirmedAdjustedPct;
+        }
+
+        // Load data from Google Sheets
+        async function loadData() {
+            showLoading();
+            hideError();
+            
+            try {
+                console.log('Fetching data from:', APPS_SCRIPT_URL);
                 
-                <!-- Revenue Model Summary -->
-                <div class="report-metrics">
-                    <div class="metric-card">
-                        <div class="value" id="reportTotalOrderBook">R 0</div>
-                        <div class="label">Total Order Book</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="value" id="reportConfirmed">R 0</div>
-                        <div class="label">Confirmed</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="value" id="reportForecast">R 0</div>
-                        <div class="label">Forecast</div>
-                    </div>
-                </div>
+                // Add timestamp to prevent caching
+                const url = `${APPS_SCRIPT_URL}?action=getData&t=${Date.now()}`;
                 
-                <!-- Order Book Table -->
-                <div class="table-container mt-4">
-                    <table class="table table-bordered" id="financialReportTable">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Project Manager</th>
-                                <th>Project</th>
-                                <th>Status</th>
-                                <th>Amount</th>
-                                <th>Mar-26</th>
-                                <th>Apr-26</th>
-                                <th>May-26</th>
-                                <th>Jun-26</th>
-                                <th>Jul-26</th>
-                                <th>Aug-26</th>
-                                <th>Sep-26</th>
-                                <th>Oct-26</th>
-                                <th>Nov-26</th>
-                                <th>Dec-26</th>
-                                <th>Jan-27</th>
-                                <th>Feb-27</th>
-                                <th>Total</th>
-                                <th>Check</th>
-                            </tr>
-                        </thead>
-                        <tbody id="financialReportBody">
-                            <tr><td colspan="19" class="text-center">Loading...</td></tr>
-                        </tbody>
-                        <tfoot id="financialReportFooter" style="font-weight: bold; background: #f8f9fa;">
-                        </tfoot>
-                    </table>
-                </div>
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
                 
-                <!-- Sector Summary -->
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header bg-light text-dark">
-                                Revenue by Sector
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Data received:', result);
+                
+                if (result.success) {
+                    allData = result.data || [];
+                    filteredData = [...allData];
+                    console.log('Processed data:', allData);
+                    updateConnectionStatus(true, `Connected (${allData.length} records)`);
+                    updateSummaryCards();
+                    renderProjects();
+                    retryCount = 0; // Reset retry count on success
+                } else {
+                    throw new Error(result.error || 'Unknown error occurred');
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                updateConnectionStatus(false, 'Connection failed');
+                
+                // Retry logic
+                if (retryCount < MAX_RETRIES) {
+                    retryCount++;
+                    showError(`Connection failed. Retrying... (${retryCount}/${MAX_RETRIES})`);
+                    setTimeout(loadData, 2000); // Retry after 2 seconds
+                } else {
+                    showError('Failed to connect to Google Sheets. Please check your Apps Script URL.');
+                    
+                    // Show empty state
+                    document.getElementById('projectsContainer').innerHTML = `
+                        <div class="empty-state">
+                            <p>❌ Failed to load data from Google Sheets</p>
+                            <p style="font-size: 12px; margin-top: 10px;">${error.message}</p>
+                            <button onclick="loadData()" style="margin-top: 15px; padding: 8px 20px; background: #4361ee; color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
+                        </div>
+                    `;
+                }
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Update Summary Cards
+        function updateSummaryCards() {
+            if (!allData || allData.length === 0) {
+                document.getElementById('summaryCards').innerHTML = `
+                    <div class="card">
+                        <h3>No Data</h3>
+                        <div class="value">0</div>
+                        <div class="subtitle">Add data to get started</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const totalConfirmed = allData.reduce((sum, item) => {
+                return sum + (parseFloat(item['Confirmed']) || 0);
+            }, 0);
+            
+            const totalForecast = allData.reduce((sum, item) => {
+                return sum + (parseFloat(item['Forecast']) || 0);
+            }, 0);
+            
+            const totalCapacity = allData.reduce((sum, item) => {
+                return sum + (parseFloat(item['Capacity']) || 0);
+            }, 0);
+            
+            const highRiskCount = allData.filter(item => {
+                const pct = parsePercentage(item['Confirmed / Adjusted Capacity %']);
+                return pct > 100;
+            }).length;
+
+            document.getElementById('summaryCards').innerHTML = `
+                <div class="card">
+                    <h3>Total Confirmed</h3>
+                    <div class="value">${formatCurrency(totalConfirmed)}</div>
+                    <div class="subtitle">Across all projects</div>
+                </div>
+                <div class="card">
+                    <h3>Total Forecast</h3>
+                    <div class="value">${formatCurrency(totalForecast)}</div>
+                    <div class="subtitle">Projected revenue</div>
+                </div>
+                <div class="card">
+                    <h3>Total Capacity</h3>
+                    <div class="value">${formatCurrency(totalCapacity)}</div>
+                    <div class="subtitle">Available resources</div>
+                </div>
+                <div class="card">
+                    <h3>High Risk Projects</h3>
+                    <div class="value">${highRiskCount}</div>
+                    <div class="subtitle">Over 100% utilization</div>
+                </div>
+            `;
+        }
+
+        // Render Projects
+        function renderProjects() {
+            if (!filteredData || filteredData.length === 0) {
+                document.getElementById('projectsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <p>No data available</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Click "Add New Entry" to add data</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const projects = ['On Point', 'Aqua Telecoms', 'Nkanyezi'];
+            let html = '';
+
+            projects.forEach(project => {
+                const projectItems = filteredData.filter(item => item['Project'] === project);
+                
+                if (projectItems.length > 0) {
+                    // Calculate project totals
+                    const projectConfirmed = projectItems.reduce((sum, item) => sum + (parseFloat(item['Confirmed']) || 0), 0);
+                    const projectForecast = projectItems.reduce((sum, item) => sum + (parseFloat(item['Forecast']) || 0), 0);
+                    const projectCapacity = projectItems.reduce((sum, item) => sum + (parseFloat(item['Capacity']) || 0), 0);
+                    
+                    // Project header color class
+                    let headerClass = '';
+                    if (project === 'On Point') headerClass = 'onpoint';
+                    else if (project === 'Aqua Telecoms') headerClass = 'aqua';
+                    else if (project === 'Nkanyezi') headerClass = 'nkanyezi';
+
+                    html += `
+                        <div class="project-section">
+                            <div class="project-header ${headerClass}">
+                                <span>${project}</span>
+                                <span class="project-totals">
+                                    Conf: ${formatCurrency(projectConfirmed)} | 
+                                    Fest: ${formatCurrency(projectForecast)} | 
+                                    Cap: ${formatCurrency(projectCapacity)}
+                                </span>
                             </div>
-                            <div class="card-body">
-                                <table class="table table-sm">
+                            <div class="table-container">
+                                <table>
                                     <thead>
                                         <tr>
-                                            <th>Sector</th>
-                                            <th class="text-end">Revenue</th>
-                                            <th class="text-end">Margin</th>
-                                            <th class="text-end">Gross Profit</th>
+                                            <th>Project Manager</th>
+                                            <th>Confirmed (R)</th>
+                                            <th>Forecast (R)</th>
+                                            <th>Adjusted Plan</th>
+                                            <th>Capacity (R)</th>
+                                            <th>Confirmed/Capacity %</th>
+                                            <th>Adjusted Capacity</th>
+                                            <th>Confirmed/Adjusted %</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="sectorRevenueBody">
-                                        <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                                    <tbody>
+                    `;
+
+                    projectItems.forEach((item, index) => {
+                        const globalIndex = allData.findIndex(d => 
+                            d['Project Manager'] === item['Project Manager'] && 
+                            d['Project'] === item['Project']
+                        );
+
+                        html += `
+                            <tr>
+                                <td><strong>${item['Project Manager'] || ''}</strong></td>
+                                <td>${formatCurrency(item['Confirmed'])}</td>
+                                <td>${formatCurrency(item['Forecast'])}</td>
+                                <td>${formatCurrency(item['Adjusted Plan (50% of Forecast)'])}</td>
+                                <td>${formatCurrency(item['Capacity'])}</td>
+                                <td class="${getRiskClass(item['Confirmed / Capacity %'])}">${item['Confirmed / Capacity %'] || '0%'}</td>
+                                <td>${formatCurrency(item['Adjusted Capacity'])}</td>
+                                <td class="${getRiskClass(item['Confirmed / Adjusted Capacity %'])}">${item['Confirmed / Adjusted Capacity %'] || '0%'}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="icon-btn edit" onclick="editEntry(${globalIndex})">Edit</button>
+                                        <button class="icon-btn delete" onclick="deleteEntry(${globalIndex})">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header bg-light text-dark">
-                                Gross Profit by Sector
-                            </div>
-                            <div class="card-body">
-                                <div class="sector-grid" id="sectorProfitGrid">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Print/Export Buttons -->
-                <div class="row mt-4 no-print">
-                    <div class="col-12 text-center">
-                        <button class="btn btn-primary me-2" onclick="window.print()">
-                            <i class="fas fa-print"></i> Print Report
-                        </button>
-                        <button class="btn btn-success" onclick="exportToExcel()">
-                            <i class="fas fa-file-excel"></i> Export to Excel
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // ============================================
-        // CONFIGURATION
-        // ============================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmfmCfb7Pq-R6Lv4ijdF5k89isPx9rDtiK5HhKSzoDZtKEFWjfQxl_z1d4TsE6_Ftz/exec';
-        
-        // ============================================
-        // GLOBAL VARIABLES
-        // ============================================
-        let projects = [];
-        let filteredProjects = [];
-        
-        const managers = [
-            'Moses', 'Johan', 'Siyanda', 'Dave', 'James', 'Rayman', 
-            'Timothy', 'Stanley', 'Brian', 'Tony', 'Govern', 'Graham',
-            'Ronald', 'Petros', 'Elroy', 'Mesh', 'Vusi', 'Tinotenda',
-            'Sydney', 'Andrew', 'Phillip', 'Moeti', 'Roads Site Agent',
-            'Civil Site Agent'
-        ];
-        
-        const categories = ['Electrical', 'Civil', 'Mechanical', 'General Buildings', 'Roads', 'Telecoms'];
-        
-        const margins = {
-            'Electrical': 45,
-            'Telecoms': 45,
-            'Civil': 20,
-            'General Buildings': 30,
-            'Roads': 20,
-            'Mechanical': 30
-        };
-        
-        // ============================================
-        // API CALL FUNCTION - FIXED for proper response handling
-        // ============================================
-        async function callAppsScript(action, data = {}) {
-            console.log(`Calling action: ${action}`, data);
-            
-            // For GET requests (fetching data)
-            if (action === 'getProjects' || action === 'testConnection' || action === 'getDashboardData') {
-                return new Promise((resolve, reject) => {
-                    const callbackName = 'jsonp_callback_' + Date.now();
-                    
-                    // Create script element
-                    const script = document.createElement('script');
-                    
-                    // Build URL with parameters
-                    const url = new URL(SCRIPT_URL);
-                    url.searchParams.append('action', action);
-                    url.searchParams.append('callback', callbackName);
-                    if (Object.keys(data).length > 0) {
-                        url.searchParams.append('data', JSON.stringify(data));
-                    }
-                    
-                    console.log('Fetching from URL:', url.toString());
-                    
-                    // Define callback function
-                    window[callbackName] = function(response) {
-                        console.log('JSONP response received:', response);
-                        delete window[callbackName];
-                        document.body.removeChild(script);
-                        
-                        if (response && response.success) {
-                            resolve(response);
-                        } else {
-                            reject(new Error(response?.error || 'Failed to load data'));
-                        }
-                    };
-                    
-                    // Handle errors
-                    script.onerror = function(error) {
-                        console.error('Script error:', error);
-                        delete window[callbackName];
-                        document.body.removeChild(script);
-                        reject(new Error('Network error - please check if the script is deployed correctly'));
-                    };
-                    
-                    // Set script source
-                    script.src = url.toString();
-                    document.body.appendChild(script);
-                    
-                    // Timeout after 15 seconds
-                    setTimeout(() => {
-                        if (window[callbackName]) {
-                            console.error('JSONP timeout');
-                            delete window[callbackName];
-                            document.body.removeChild(script);
-                            reject(new Error('Request timeout - please try again'));
-                        }
-                    }, 15000);
-                });
-            } else {
-                // For POST requests (saving data)
-                try {
-                    const formData = new URLSearchParams();
-                    formData.append('action', action);
-                    formData.append('payload', JSON.stringify({
-                        action: action,
-                        data: data
-                    }));
-                    
-                    const response = await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: formData
-                    });
-                    
-                    console.log('POST request sent successfully:', action);
-                    return { success: true };
-                    
-                } catch (error) {
-                    console.error('POST request failed:', error);
-                    return { success: false, error: error.message };
+                    `;
                 }
+            });
+
+            document.getElementById('projectsContainer').innerHTML = html;
+        }
+
+        // Filter Data
+        function filterData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const projectFilter = document.getElementById('projectFilter').value;
+            const riskFilter = document.getElementById('riskFilter').value;
+
+            filteredData = allData.filter(item => {
+                let matchesSearch = true;
+                let matchesProject = true;
+                let matchesRisk = true;
+
+                if (searchTerm) {
+                    const manager = (item['Project Manager'] || '').toLowerCase();
+                    matchesSearch = manager.includes(searchTerm);
+                }
+
+                if (projectFilter) {
+                    matchesProject = item['Project'] === projectFilter;
+                }
+
+                if (riskFilter) {
+                    const pct = parsePercentage(item['Confirmed / Adjusted Capacity %']);
+                    if (riskFilter === 'high') matchesRisk = pct > 100;
+                    else if (riskFilter === 'medium') matchesRisk = pct > 70 && pct <= 100;
+                    else if (riskFilter === 'low') matchesRisk = pct <= 70;
+                }
+
+                return matchesSearch && matchesProject && matchesRisk;
+            });
+
+            renderProjects();
+        }
+
+        // Modal Functions
+        function openAddModal() {
+            editingIndex = -1;
+            document.getElementById('modalTitle').textContent = 'Add New Project Entry';
+            document.getElementById('dataForm').reset();
+            document.getElementById('adjustedPlan').value = '0';
+            document.getElementById('adjustedCapacity').value = '0';
+            document.getElementById('confirmedCapacityPct').value = '0%';
+            document.getElementById('confirmedAdjustedPct').value = '0%';
+            document.getElementById('dataModal').style.display = 'block';
+        }
+
+        function editEntry(index) {
+            editingIndex = index;
+            const item = allData[index];
+            
+            document.getElementById('modalTitle').textContent = 'Edit Project Entry';
+            document.getElementById('project').value = item['Project'] || '';
+            document.getElementById('projectManager').value = item['Project Manager'] || '';
+            document.getElementById('confirmed').value = item['Confirmed'] || 0;
+            document.getElementById('forecast').value = item['Forecast'] || 0;
+            document.getElementById('capacity').value = item['Capacity'] || 0;
+            
+            calculateFields();
+            document.getElementById('dataModal').style.display = 'block';
+        }
+
+        async function deleteEntry(index) {
+            if (!confirm('Are you sure you want to delete this entry?')) return;
+            
+            showLoading();
+            
+            try {
+                const item = allData[index];
+                
+                const formData = new URLSearchParams();
+                formData.append('action', 'deleteData');
+                formData.append('project', item['Project']);
+                formData.append('projectManager', item['Project Manager']);
+
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Entry deleted successfully!');
+                    loadData(); // Refresh data
+                } else {
+                    throw new Error(result.message || 'Failed to delete');
+                }
+            } catch (error) {
+                console.error('Error deleting data:', error);
+                alert('Error deleting data: ' + error.message);
+            } finally {
+                hideLoading();
             }
         }
-        
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing...');
-            updateCurrentDate();
-            initializeDropdowns();
-            updateConnectionStatus('checking', 'Connecting to Google Sheets...');
+
+        function closeModal() {
+            document.getElementById('dataModal').style.display = 'none';
+        }
+
+        // Save Data
+        document.getElementById('dataForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            // Small delay to ensure DOM is fully loaded
-            setTimeout(function() {
-                testConnection();
-            }, 100);
-            
-            // Set default active tab
-            const firstNavLink = document.querySelector('.nav-link');
-            if (firstNavLink) {
-                showTab('dashboard', firstNavLink);
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            showLoading();
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', editingIndex >= 0 ? 'updateData' : 'addData');
+                formData.append('project', document.getElementById('project').value);
+                formData.append('projectManager', document.getElementById('projectManager').value);
+                formData.append('confirmed', document.getElementById('confirmed').value);
+                formData.append('forecast', document.getElementById('forecast').value);
+                formData.append('capacity', document.getElementById('capacity').value);
+
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(editingIndex >= 0 ? 'Entry updated successfully!' : 'Entry added successfully!');
+                    closeModal();
+                    loadData(); // Refresh data
+                } else {
+                    throw new Error(result.error || 'Failed to save');
+                }
+            } catch (error) {
+                console.error('Error saving data:', error);
+                alert('Error saving data: ' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                hideLoading();
             }
-            
-            // Add event listeners for month inputs
-            document.querySelectorAll('.month-input').forEach(input => {
-                input.addEventListener('input', updateScheduledTotal);
-            });
         });
-        
-        function updateConnectionStatus(status, message) {
-            const statusElement = document.getElementById('connectionStatus');
-            const detailsElement = document.getElementById('connectionDetails');
+
+        // Export to Drive
+        async function exportToDrive() {
+            if (!confirm('Export all data to Google Drive?')) return;
             
-            if (!statusElement || !detailsElement) return;
-            
-            statusElement.className = 'connection-status ';
-            
-            if (status === 'connected') {
-                statusElement.classList.add('status-connected');
-                statusElement.innerHTML = '<i class="fas fa-check-circle me-2"></i> ' + message;
-                detailsElement.innerHTML = '<i class="fas fa-database"></i> Connected to Google Sheets • ' + projects.length + ' projects loaded';
-            } else if (status === 'disconnected') {
-                statusElement.classList.add('status-disconnected');
-                statusElement.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i> ' + message;
-                detailsElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection failed • No data available';
-                
-                // Clear any existing data
-                projects = [];
-                filteredProjects = [];
-                updateAllViews();
-            } else {
-                statusElement.classList.add('status-checking');
-                statusElement.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i> ' + message;
-                detailsElement.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Establishing connection...';
-            }
-        }
-        
-        async function testConnection() {
-            console.log('Testing connection to:', SCRIPT_URL);
-            
-            try {
-                const result = await callAppsScript('testConnection');
-                console.log('Connection test result:', result);
-                
-                if (result && result.success) {
-                    updateConnectionStatus('connected', 'Connected to Google Sheets');
-                    // Load projects after successful connection
-                    loadProjectsFromSheet();
-                } else {
-                    throw new Error('Connection test failed');
-                }
-            } catch (error) {
-                console.error('Connection error:', error);
-                updateConnectionStatus('disconnected', 'Connection unavailable');
-                showStatus('Could not connect to Google Sheets. Please check deployment.', 'error');
-            }
-        }
-        
-        async function loadProjectsFromSheet() {
-            console.log('Loading projects from Google Sheets...');
             showLoading();
             
             try {
-                const result = await callAppsScript('getProjects');
-                console.log('Projects data received:', result);
-                
-                if (result && result.success) {
-                    // Parse the data from Google Sheets
-                    projects = parseSheetData(result.data);
-                    filteredProjects = [...projects];
-                    
-                    console.log(`Parsed ${projects.length} projects`);
-                    
-                    if (projects.length > 0) {
-                        updateConnectionStatus('connected', 'Connected to Google Sheets');
-                        showStatus(`Loaded ${projects.length} projects from Google Sheets`, 'success');
-                    } else {
-                        updateConnectionStatus('connected', 'Connected to Google Sheets');
-                        showStatus('No projects found in Google Sheets. Add your first project!', 'info');
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=exportToDrive&t=${Date.now()}`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json',
                     }
-                    
-                    updateAllViews();
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Data exported successfully!\nFile: ${result.fileName}\nURL: ${result.fileUrl}`);
                 } else {
-                    throw new Error(result?.error || 'No data received');
+                    throw new Error(result.error || 'Export failed');
                 }
             } catch (error) {
-                console.error('Error loading projects from sheet:', error);
-                updateConnectionStatus('disconnected', 'Failed to load data');
-                
-                // Clear any existing data
-                projects = [];
-                filteredProjects = [];
-                updateAllViews();
-                
-                showStatus('Could not load data from Google Sheets: ' + error.message, 'error');
+                console.error('Error exporting data:', error);
+                alert('Error exporting data: ' + error.message);
             } finally {
                 hideLoading();
             }
         }
-        
-        // Parse sheet data into project objects - FIXED to match actual sheet structure
-        function parseSheetData(data) {
-            const projects = [];
-            
-            if (!data) {
-                console.log('No data received');
-                return projects;
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('dataModal');
+            if (event.target === modal) {
+                closeModal();
             }
-            
-            console.log('Parsing data:', data);
-            
-            // Handle different data formats
-            let rows = [];
-            
-            if (Array.isArray(data)) {
-                rows = data;
-                console.log('Data is array with', rows.length, 'rows');
-            } else if (data.values && Array.isArray(data.values)) {
-                rows = data.values;
-                console.log('Data has values array with', rows.length, 'rows');
-            } else if (typeof data === 'object') {
-                // If data is already an object with project properties
-                if (data.category || data.manager || data.project) {
-                    console.log('Data is single project object');
-                    projects.push(data);
-                    return projects;
-                }
-                // Try to convert object to array
-                try {
-                    rows = Object.values(data);
-                    console.log('Converted object to array with', rows.length, 'items');
-                } catch (e) {
-                    console.error('Could not convert data to array:', e);
-                    return projects;
-                }
-            } else if (typeof data === 'string') {
-                try {
-                    rows = JSON.parse(data);
-                    console.log('Parsed JSON string with', rows.length, 'rows');
-                } catch (e) {
-                    console.error('Failed to parse JSON string:', e);
-                    return projects;
-                }
-            } else {
-                console.error('Unexpected data format:', typeof data);
-                return projects;
-            }
-            
-            // Skip header row if present (check if first row contains headers)
-            let startRow = 0;
-            if (rows.length > 0 && rows[0] && Array.isArray(rows[0])) {
-                const firstRow = rows[0];
-                if (firstRow[0] === 'Timestamp' || 
-                    firstRow[0] === 'timestamp' ||
-                    (typeof firstRow[0] === 'string' && firstRow[0].toLowerCase().includes('timestamp'))) {
-                    startRow = 1;
-                    console.log('Skipping header row');
-                }
-            }
-            
-            // Parse data rows
-            for (let i = startRow; i < rows.length; i++) {
-                const row = rows[i];
-                
-                // Handle if row is an object (not array)
-                if (row && typeof row === 'object' && !Array.isArray(row)) {
-                    // Row is already an object with properties
-                    const project = {
-                        category: row.category || row[2] || '',
-                        manager: row.manager || row[3] || '',
-                        project: row.project || row[4] || '',
-                        status: row.status || row[5] || 'Confirmed',
-                        amount: parseFloat(row.amount || row[6]) || 0,
-                        margin: parseFloat(row.margin || row[7]) || 30,
-                        retention: parseFloat(row.retention || row[8]) || 10,
-                        notes: row.notes || row[9] || '',
-                        mar26: parseFloat(row.mar26 || row[10]) || 0,
-                        apr26: parseFloat(row.apr26 || row[11]) || 0,
-                        may26: parseFloat(row.may26 || row[12]) || 0,
-                        jun26: parseFloat(row.jun26 || row[13]) || 0,
-                        jul26: parseFloat(row.jul26 || row[14]) || 0,
-                        aug26: parseFloat(row.aug26 || row[15]) || 0,
-                        sep26: parseFloat(row.sep26 || row[16]) || 0,
-                        oct26: parseFloat(row.oct26 || row[17]) || 0,
-                        nov26: parseFloat(row.nov26 || row[18]) || 0,
-                        dec26: parseFloat(row.dec26 || row[19]) || 0,
-                        jan27: parseFloat(row.jan27 || row[20]) || 0,
-                        feb27: parseFloat(row.feb27 || row[21]) || 0
-                    };
-                    
-                    if (project.category && project.manager && project.project) {
-                        projects.push(project);
-                    }
-                    continue;
-                }
-                
-                // Handle array row
-                if (!row || !Array.isArray(row) || row.length < 5) continue;
-                
-                try {
-                    const project = {
-                        category: row[2] || '',      // Column C - Category
-                        manager: row[3] || '',        // Column D - Project Manager
-                        project: row[4] || '',        // Column E - Project Name
-                        status: row[5] || 'Confirmed', // Column F - Status
-                        amount: parseFloat(row[6]) || 0,  // Column G - Total Amount
-                        margin: parseFloat(row[7]) || 30, // Column H - Margin %
-                        retention: parseFloat(row[8]) || 10, // Column I - Retention %
-                        notes: row[9] || '',           // Column J - Notes
-                        mar26: parseFloat(row[10]) || 0, // Column K - Mar-26
-                        apr26: parseFloat(row[11]) || 0, // Column L - Apr-26
-                        may26: parseFloat(row[12]) || 0, // Column M - May-26
-                        jun26: parseFloat(row[13]) || 0, // Column N - Jun-26
-                        jul26: parseFloat(row[14]) || 0, // Column O - Jul-26
-                        aug26: parseFloat(row[15]) || 0, // Column P - Aug-26
-                        sep26: parseFloat(row[16]) || 0, // Column Q - Sep-26
-                        oct26: parseFloat(row[17]) || 0, // Column R - Oct-26
-                        nov26: parseFloat(row[18]) || 0, // Column S - Nov-26
-                        dec26: parseFloat(row[19]) || 0, // Column T - Dec-26
-                        jan27: parseFloat(row[20]) || 0, // Column U - Jan-27
-                        feb27: parseFloat(row[21]) || 0  // Column V - Feb-27
-                    };
-                    
-                    // Only add if it has required fields
-                    if (project.category && project.manager && project.project) {
-                        projects.push(project);
-                    }
-                } catch (e) {
-                    console.error('Error parsing row', i, e);
-                }
-            }
-            
-            console.log(`Parsed ${projects.length} valid projects`);
-            return projects;
-        }
-        
-        // ============================================
-        // UPDATE FUNCTIONS
-        // ============================================
-        function updateAllViews() {
-            updateDashboard();
-            updateOrderBook();
-            updateFinancialReport();
-            updateManagerSummary();
-        }
-        
-        function updateCurrentDate() {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('currentDate').innerHTML = new Date().toLocaleDateString('en-ZA', options);
-            document.getElementById('reportDate').innerHTML = new Date().toLocaleString('en-ZA');
-        }
-        
-        function initializeDropdowns() {
-            // Category filter
-            const catFilter = document.getElementById('categoryFilter');
-            if (catFilter) {
-                catFilter.innerHTML = '<option value="All">All Categories</option>';
-                categories.forEach(c => {
-                    catFilter.innerHTML += `<option value="${c}">${c}</option>`;
-                });
-            }
-            
-            // Manager filter
-            const mgrFilter = document.getElementById('managerFilter');
-            if (mgrFilter) {
-                mgrFilter.innerHTML = '<option value="All">All Managers</option>';
-                managers.forEach(m => {
-                    mgrFilter.innerHTML += `<option value="${m}">${m}</option>`;
-                });
-            }
-            
-            // Manager datalist
-            const mgrList = document.getElementById('managersList');
-            if (mgrList) {
-                mgrList.innerHTML = '';
-                managers.forEach(m => {
-                    mgrList.innerHTML += `<option value="${m}">`;
-                });
-            }
-        }
-        
-        function updateDashboard() {
-            const totalConfirmed = projects.filter(p => p.status === 'Confirmed').reduce((sum, p) => sum + p.amount, 0);
-            const totalForecast = projects.filter(p => p.status === 'Forecast').reduce((sum, p) => sum + p.amount, 0);
-            
-            document.getElementById('totalOrderBook').innerHTML = 'R ' + formatNumber(totalConfirmed + totalForecast);
-            document.getElementById('confirmedTotal').innerHTML = 'R ' + formatNumber(totalConfirmed);
-            document.getElementById('forecastTotal').innerHTML = 'R ' + formatNumber(totalForecast);
-            
-            let totalGP = 0;
-            let totalRevenue = 0;
-            projects.forEach(p => {
-                const margin = p.margin || margins[p.category] || 30;
-                totalGP += p.amount * (margin / 100);
-                totalRevenue += p.amount;
-            });
-            const avgMargin = totalRevenue > 0 ? (totalGP / totalRevenue * 100).toFixed(1) : 0;
-            document.getElementById('grossMargin').innerHTML = avgMargin + '%';
-        }
-        
-        function updateManagerSummary() {
-            const managerData = {};
-            
-            projects.forEach(p => {
-                if (!managerData[p.manager]) {
-                    managerData[p.manager] = {
-                        manager: p.manager,
-                        category: p.category,
-                        confirmed: 0,
-                        forecast: 0,
-                        count: 0
-                    };
-                }
-                if (p.status === 'Confirmed') {
-                    managerData[p.manager].confirmed += p.amount;
-                } else {
-                    managerData[p.manager].forecast += p.amount;
-                }
-                managerData[p.manager].count++;
-            });
-            
-            let html = '';
-            Object.values(managerData).forEach(m => {
-                html += `<tr>
-                    <td><strong>${m.manager}</strong></td>
-                    <td>${m.category}</td>
-                    <td>R ${formatNumber(m.confirmed)}</td>
-                    <td>R ${formatNumber(m.forecast)}</td>
-                    <td>R ${formatNumber(m.confirmed + m.forecast)}</td>
-                    <td>${m.count}</td>
-                </tr>`;
-            });
-            
-            document.getElementById('managerSummaryBody').innerHTML = html || '<tr><td colspan="6" class="text-center">No data available from Google Sheets</td></tr>';
-        }
-        
-        function updateOrderBook() {
-            let html = '';
-            filteredProjects.forEach(p => {
-                const scheduled = (p.mar26 + p.apr26 + p.may26 + p.jun26 + p.jul26 + p.aug26 + p.sep26 + p.oct26 + p.nov26 + p.dec26 + p.jan27 + p.feb27);
-                const variance = p.amount - scheduled;
-                
-                html += `<tr>
-                    <td>${p.category}</td>
-                    <td><strong>${p.manager}</strong></td>
-                    <td>${p.project}</td>
-                    <td><span class="badge-${p.status.toLowerCase()}">${p.status}</span></td>
-                    <td>R ${formatNumber(p.amount)}</td>
-                    <td>${p.mar26 ? 'R ' + formatNumber(p.mar26) : '-'}</td>
-                    <td>${p.apr26 ? 'R ' + formatNumber(p.apr26) : '-'}</td>
-                    <td>${p.may26 ? 'R ' + formatNumber(p.may26) : '-'}</td>
-                    <td>${p.jun26 ? 'R ' + formatNumber(p.jun26) : '-'}</td>
-                    <td>${p.jul26 ? 'R ' + formatNumber(p.jul26) : '-'}</td>
-                    <td>${p.aug26 ? 'R ' + formatNumber(p.aug26) : '-'}</td>
-                    <td>${p.sep26 ? 'R ' + formatNumber(p.sep26) : '-'}</td>
-                    <td>${p.oct26 ? 'R ' + formatNumber(p.oct26) : '-'}</td>
-                    <td>${p.nov26 ? 'R ' + formatNumber(p.nov26) : '-'}</td>
-                    <td>${p.dec26 ? 'R ' + formatNumber(p.dec26) : '-'}</td>
-                    <td>${p.jan27 ? 'R ' + formatNumber(p.jan27) : '-'}</td>
-                    <td>${p.feb27 ? 'R ' + formatNumber(p.feb27) : '-'}</td>
-                    <td>R ${formatNumber(scheduled)}</td>
-                    <td class="${variance < 0 ? 'text-danger' : 'text-success'}">R ${formatNumber(variance)}</td>
-                </tr>`;
-            });
-            
-            document.getElementById('orderBookBody').innerHTML = html || '<tr><td colspan="19" class="text-center">No data available from Google Sheets</td></tr>';
-        }
-        
-        function updateFinancialReport() {
-            let html = '';
-            let totalAmount = 0;
-            let totalScheduled = 0;
-            let monthlyTotals = [0,0,0,0,0,0,0,0,0,0,0,0];
-            
-            projects.forEach(p => {
-                const scheduled = (p.mar26 + p.apr26 + p.may26 + p.jun26 + p.jul26 + p.aug26 + p.sep26 + p.oct26 + p.nov26 + p.dec26 + p.jan27 + p.feb27);
-                totalAmount += p.amount;
-                totalScheduled += scheduled;
-                
-                monthlyTotals[0] += p.mar26;
-                monthlyTotals[1] += p.apr26;
-                monthlyTotals[2] += p.may26;
-                monthlyTotals[3] += p.jun26;
-                monthlyTotals[4] += p.jul26;
-                monthlyTotals[5] += p.aug26;
-                monthlyTotals[6] += p.sep26;
-                monthlyTotals[7] += p.oct26;
-                monthlyTotals[8] += p.nov26;
-                monthlyTotals[9] += p.dec26;
-                monthlyTotals[10] += p.jan27;
-                monthlyTotals[11] += p.feb27;
-                
-                const variance = p.amount - scheduled;
-                
-                html += `<tr>
-                    <td>${p.category}</td>
-                    <td>${p.manager}</td>
-                    <td>${p.project}</td>
-                    <td>${p.status}</td>
-                    <td class="text-end">R ${formatNumber(p.amount)}</td>
-                    <td class="text-end">${p.mar26 ? 'R ' + formatNumber(p.mar26) : '-'}</td>
-                    <td class="text-end">${p.apr26 ? 'R ' + formatNumber(p.apr26) : '-'}</td>
-                    <td class="text-end">${p.may26 ? 'R ' + formatNumber(p.may26) : '-'}</td>
-                    <td class="text-end">${p.jun26 ? 'R ' + formatNumber(p.jun26) : '-'}</td>
-                    <td class="text-end">${p.jul26 ? 'R ' + formatNumber(p.jul26) : '-'}</td>
-                    <td class="text-end">${p.aug26 ? 'R ' + formatNumber(p.aug26) : '-'}</td>
-                    <td class="text-end">${p.sep26 ? 'R ' + formatNumber(p.sep26) : '-'}</td>
-                    <td class="text-end">${p.oct26 ? 'R ' + formatNumber(p.oct26) : '-'}</td>
-                    <td class="text-end">${p.nov26 ? 'R ' + formatNumber(p.nov26) : '-'}</td>
-                    <td class="text-end">${p.dec26 ? 'R ' + formatNumber(p.dec26) : '-'}</td>
-                    <td class="text-end">${p.jan27 ? 'R ' + formatNumber(p.jan27) : '-'}</td>
-                    <td class="text-end">${p.feb27 ? 'R ' + formatNumber(p.feb27) : '-'}</td>
-                    <td class="text-end"><strong>R ${formatNumber(scheduled)}</strong></td>
-                    <td class="text-end ${variance < 0 ? 'text-danger' : 'text-success'}">R ${formatNumber(variance)}</td>
-                </tr>`;
-            });
-            
-            document.getElementById('financialReportBody').innerHTML = html || '<tr><td colspan="19" class="text-center">No data available from Google Sheets</td></tr>';
-            
-            if (projects.length > 0) {
-                const footer = `<tr style="background: #e9ecef; font-weight: bold;">
-                    <td colspan="4"><strong>TOTAL</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(totalAmount)}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[0])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[1])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[2])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[3])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[4])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[5])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[6])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[7])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[8])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[9])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[10])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[11])}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(totalScheduled)}</strong></td>
-                    <td class="text-end"><strong>R ${formatNumber(totalAmount - totalScheduled)}</strong></td>
-                </tr>`;
-                document.getElementById('financialReportFooter').innerHTML = footer;
-            } else {
-                document.getElementById('financialReportFooter').innerHTML = '';
-            }
-            
-            const confirmed = projects.filter(p => p.status === 'Confirmed').reduce((sum, p) => sum + p.amount, 0);
-            const forecast = projects.filter(p => p.status === 'Forecast').reduce((sum, p) => sum + p.amount, 0);
-            
-            document.getElementById('reportTotalOrderBook').innerHTML = 'R ' + formatNumber(totalAmount);
-            document.getElementById('reportConfirmed').innerHTML = 'R ' + formatNumber(confirmed);
-            document.getElementById('reportForecast').innerHTML = 'R ' + formatNumber(forecast);
-            
-            updateSectorRevenue();
-        }
-        
-        function updateSectorRevenue() {
-            let sectorHtml = '';
-            let sectorProfitHtml = '';
-            
-            categories.forEach(cat => {
-                const catProjects = projects.filter(p => p.category === cat);
-                const revenue = catProjects.reduce((sum, p) => sum + p.amount, 0);
-                const margin = margins[cat] || 30;
-                const gp = revenue * (margin / 100);
-                
-                if (revenue > 0) {
-                    sectorHtml += `<tr>
-                        <td>${cat}</td>
-                        <td class="text-end">R ${formatNumber(revenue)}</td>
-                        <td class="text-end">${margin}%</td>
-                        <td class="text-end">R ${formatNumber(gp)}</td>
-                    </tr>`;
-                    
-                    sectorProfitHtml += `<div class="sector-card ${cat.toLowerCase().replace(' ', '')}">
-                        <div style="font-weight:600;">${cat}</div>
-                        <div class="d-flex justify-content-between mt-2">
-                            <span>Revenue:</span>
-                            <strong>R ${formatNumber(revenue)}</strong>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span>GP (${margin}%):</span>
-                            <strong class="text-success">R ${formatNumber(gp)}</strong>
-                        </div>
-                    </div>`;
-                }
-            });
-            
-            document.getElementById('sectorRevenueBody').innerHTML = sectorHtml || '<tr><td colspan="4" class="text-center">No data available</td></tr>';
-            document.getElementById('sectorProfitGrid').innerHTML = sectorProfitHtml || '<p class="text-muted">No data available</p>';
-        }
-        
-        // ============================================
-        // FILTER FUNCTIONS
-        // ============================================
-        function applyFilters() {
-            const category = document.getElementById('categoryFilter').value;
-            const manager = document.getElementById('managerFilter').value;
-            const status = document.getElementById('statusFilter').value;
-            
-            filteredProjects = projects.filter(p => {
-                if (category !== 'All' && p.category !== category) return false;
-                if (manager !== 'All' && p.manager !== manager) return false;
-                if (status !== 'All' && p.status !== status) return false;
-                return true;
-            });
-            
-            updateOrderBook();
-            showStatus('Filters applied', 'success');
-        }
-        
-        // ============================================
-        // DATA ENTRY FUNCTIONS
-        // ============================================
-        function distributeEvenly() {
-            const total = parseFloat(document.getElementById('totalAmount').value) || 0;
-            const monthly = Math.round(total / 12);
-            
-            document.getElementById('mar26').value = monthly;
-            document.getElementById('apr26').value = monthly;
-            document.getElementById('may26').value = monthly;
-            document.getElementById('jun26').value = monthly;
-            document.getElementById('jul26').value = monthly;
-            document.getElementById('aug26').value = monthly;
-            document.getElementById('sep26').value = monthly;
-            document.getElementById('oct26').value = monthly;
-            document.getElementById('nov26').value = monthly;
-            document.getElementById('dec26').value = monthly;
-            document.getElementById('jan27').value = monthly;
-            document.getElementById('feb27').value = monthly;
-            
-            updateScheduledTotal();
-        }
-        
-        function updateScheduledTotal() {
-            const months = ['mar26','apr26','may26','jun26','jul26','aug26','sep26','oct26','nov26','dec26','jan27','feb27'];
-            let total = 0;
-            months.forEach(m => total += parseFloat(document.getElementById(m).value) || 0);
-            document.getElementById('scheduledTotal').innerHTML = formatNumber(total);
-        }
-        
-        async function submitProject() {
-            // Check connection status first
-            const statusElement = document.getElementById('connectionStatus');
-            if (statusElement.classList.contains('status-disconnected')) {
-                showStatus('Cannot save: Not connected to Google Sheets', 'error');
-                return;
-            }
-            
-            const required = ['projectCategory', 'projectManager', 'projectName', 'totalAmount'];
-            for (let field of required) {
-                const element = document.getElementById(field);
-                if (!element || !element.value) {
-                    showStatus('Please fill in all required fields', 'error');
-                    if (element) element.focus();
-                    return;
-                }
-            }
-            
-            const project = {
-                category: document.getElementById('projectCategory').value,
-                manager: document.getElementById('projectManager').value,
-                project: document.getElementById('projectName').value,
-                status: document.getElementById('projectStatus').value,
-                amount: parseFloat(document.getElementById('totalAmount').value),
-                margin: parseFloat(document.getElementById('margin').value) || 30,
-                retention: parseFloat(document.getElementById('retention').value) || 10,
-                notes: document.getElementById('projectNotes').value || '',
-                mar26: parseFloat(document.getElementById('mar26').value) || 0,
-                apr26: parseFloat(document.getElementById('apr26').value) || 0,
-                may26: parseFloat(document.getElementById('may26').value) || 0,
-                jun26: parseFloat(document.getElementById('jun26').value) || 0,
-                jul26: parseFloat(document.getElementById('jul26').value) || 0,
-                aug26: parseFloat(document.getElementById('aug26').value) || 0,
-                sep26: parseFloat(document.getElementById('sep26').value) || 0,
-                oct26: parseFloat(document.getElementById('oct26').value) || 0,
-                nov26: parseFloat(document.getElementById('nov26').value) || 0,
-                dec26: parseFloat(document.getElementById('dec26').value) || 0,
-                jan27: parseFloat(document.getElementById('jan27').value) || 0,
-                feb27: parseFloat(document.getElementById('feb27').value) || 0
-            };
-            
-            console.log('Submitting project:', project);
-            showLoading();
-            
-            try {
-                const result = await callAppsScript('submitProject', project);
-                console.log('Submit result:', result);
-                
-                if (result && result.success) {
-                    showStatus('Project saved to Google Sheets!', 'success');
-                    // Wait a moment then reload data
-                    setTimeout(() => {
-                        loadProjectsFromSheet();
-                        resetForm();
-                    }, 1000);
-                } else {
-                    showStatus('Error saving: ' + (result?.error || 'Unknown error'), 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showStatus('Failed to connect to Google Sheets', 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-        
-        function resetForm() {
-            document.getElementById('projectForm').reset();
-            document.querySelectorAll('.month-input').forEach(i => i.value = 0);
-            document.getElementById('margin').value = 30;
-            document.getElementById('retention').value = 10;
-            updateScheduledTotal();
-        }
-        
-        // ============================================
-        // UTILITY FUNCTIONS
-        // ============================================
-        function formatNumber(num) {
-            if (!num && num !== 0) return '0';
-            return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-        
-        function showStatus(message, type) {
-            const existing = document.querySelector('.status-message');
-            if (existing) existing.remove();
-            
-            const status = document.createElement('div');
-            status.className = `status-message status-${type}`;
-            status.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
-            document.body.appendChild(status);
-            
-            setTimeout(() => status.remove(), 3000);
-        }
-        
-        function showLoading() {
-            document.getElementById('loadingOverlay').style.display = 'flex';
-        }
-        
-        function hideLoading() {
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-        
-        function showTab(tabName, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-            document.getElementById(tabName).style.display = 'block';
-            
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            if (element) {
-                element.classList.add('active');
-            }
-        }
-        
-        function exportToExcel() {
-            if (projects.length === 0) {
-                showStatus('No data to export', 'error');
-                return;
-            }
-            
-            let csv = "Category,Project Manager,Project,Status,Amount,Mar-26,Apr-26,May-26,Jun-26,Jul-26,Aug-26,Sep-26,Oct-26,Nov-26,Dec-26,Jan-27,Feb-27,Total,Check\n";
-            
-            projects.forEach(p => {
-                const scheduled = (p.mar26 + p.apr26 + p.may26 + p.jun26 + p.jul26 + p.aug26 + p.sep26 + p.oct26 + p.nov26 + p.dec26 + p.jan27 + p.feb27);
-                const variance = p.amount - scheduled;
-                
-                csv += `${p.category},${p.manager},${p.project},${p.status},${p.amount},${p.mar26},${p.apr26},${p.may26},${p.jun26},${p.jul26},${p.aug26},${p.sep26},${p.oct26},${p.nov26},${p.dec26},${p.jan27},${p.feb27},${scheduled},${variance}\n`;
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Onpoint_Group_Report_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            window.URL.revokeObjectURL(url);
         }
     </script>
 </body>
