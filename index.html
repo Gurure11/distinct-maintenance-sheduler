@@ -3,1985 +3,1839 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Onpoint Group - Enterprise Project Tracking Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>On Point Group - Project Financial System</title>
+    
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #1e3c72;
+            --secondary: #2a5298;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
         }
-
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px;
+            margin: 0;
         }
-
-        .container {
+        
+        .main-container {
             max-width: 1600px;
             margin: 0 auto;
         }
-
-        /* Header Styles */
-        .header {
+        
+        .company-header {
             background: white;
             border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideDown 0.5s ease;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo-container img {
-            height: 50px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .logo-container h1 {
-            color: #333;
-            font-size: 32px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .sync-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            background: #f0f0f0;
-            border-radius: 30px;
-            font-size: 14px;
-        }
-
-        .sync-status.online {
-            background: #43e97b20;
-            color: #43e97b;
-        }
-
-        .sync-status.offline {
-            background: #fa709a20;
-            color: #fa709a;
-        }
-
-        /* Cost Center Grid */
-        .cost-center-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .cost-center-btn {
-            background: #f8f9fa;
-            border: 2px solid transparent;
-            padding: 15px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            color: #555;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .cost-center-btn i {
-            font-size: 16px;
-        }
-
-        .cost-center-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-
-        .cost-center-btn.active {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border-color: #fff;
-        }
-
-        /* Main Form Card */
-        .form-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .form-title {
-            color: #333;
-            font-size: 20px;
-            font-weight: 600;
+            padding: 25px 30px;
             margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-            display: flex;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-bottom: 4px solid var(--primary);
+        }
+        
+        .company-title {
+            color: var(--primary);
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+        }
+        
+        .company-subtitle {
+            color: #6c757d;
+            font-size: 16px;
+            font-weight: 400;
+        }
+        
+        .connection-status {
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
             font-weight: 600;
-            color: #555;
+            margin-left: 15px;
+        }
+        
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-connected i {
+            color: #28a745;
+        }
+        
+        .status-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-disconnected i {
+            color: #dc3545;
+        }
+        
+        .status-checking {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .revenue-model-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
             font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .debug-panel {
+            background: #1e1e2f;
+            color: #00ff00;
+            font-family: monospace;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .debug-panel .debug-entry {
+            margin: 5px 0;
+            font-size: 12px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        
+        .nav-custom {
+            background: white;
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nav-custom .nav {
             display: flex;
-            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
             gap: 5px;
         }
-
-        .form-group label i {
-            color: #1e3c72;
-            font-size: 14px;
-        }
-
-        .form-group input, .form-group select {
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
+        
+        .nav-custom .nav-link {
+            color: #6c757d;
+            padding: 12px 25px;
             border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+            cursor: pointer;
         }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #1e3c72;
-            box-shadow: 0 0 0 3px rgba(30,60,114,0.1);
+        
+        .nav-custom .nav-link:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
         }
-
-        .duration-group {
-            display: flex;
-            gap: 10px;
+        
+        .nav-custom .nav-link.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
         }
-
-        .duration-group select {
-            flex: 1;
+        
+        .nav-custom .nav-link i {
+            margin-right: 8px;
         }
-
-        /* Target Progress Group */
-        .target-group {
-            display: flex;
-            gap: 10px;
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            background: white;
         }
-
-        .target-group input {
-            flex: 2;
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
         }
-
-        .target-group select {
-            flex: 1;
+        
+        .card-header i {
+            margin-right: 10px;
         }
-
-        /* Date Range Styles */
-        .date-range {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        
+        .card-header.bg-light {
+            background: #f8f9fa !important;
+            color: var(--dark);
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .kpi-card {
+            background: white;
             border-radius: 15px;
             padding: 20px;
-            margin-bottom: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--primary);
         }
-
-        .date-item {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 5px 0;
         }
-
-        .date-item label {
-            font-weight: 600;
-            color: #1e3c72;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .date-item input {
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-        }
-
-        /* Metrics Cards */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .metric-card {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            padding: 25px;
-            border-radius: 15px;
-            color: white;
-            box-shadow: 0 15px 40px rgba(30,60,114,0.4);
-            transition: transform 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            transform: translate(30px, -30px);
-        }
-
-        .metric-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .metric-card.green {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-
-        .metric-card.orange {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        }
-
-        .metric-icon {
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-
-        .metric-label {
+        
+        .kpi-label {
+            color: #6c757d;
             font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-
-        .metric-value {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .metric-sub {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        /* Progress Section */
-        .progress-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .progress-badge {
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .progress-badge.on-track {
-            background: #43e97b20;
-            color: #43e97b;
-        }
-
-        .progress-badge.at-risk {
-            background: #fa709a20;
-            color: #fa709a;
-        }
-
-        .progress-badge.completed {
-            background: #1e3c7220;
-            color: #1e3c72;
-        }
-
-        .progress-bar-container {
-            width: 100%;
-            height: 25px;
-            background: #e0e0e0;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 25px;
-            position: relative;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-            border-radius: 15px;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            color: white;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .progress-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: #333;
-        }
-
-        .stat-value.variance-positive {
-            color: #43e97b;
-        }
-
-        .stat-value.variance-negative {
-            color: #fa709a;
-        }
-
-        /* Daily Performance Section - NEW */
-        .daily-performance {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-left: 4px solid #1e3c72;
-        }
-
-        .daily-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .daily-header h3 {
-            color: #1e3c72;
-            font-size: 18px;
-        }
-
-        .daily-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            background: #f0f0f0;
-        }
-
-        .daily-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .daily-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .daily-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-        }
-
-        .daily-info {
-            flex: 1;
-        }
-
-        .daily-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .daily-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: #333;
-        }
-
-        .daily-target {
-            font-size: 11px;
-            color: #999;
-        }
-
-        /* Timeline Gantt Chart */
-        .timeline-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-
-        .timeline-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .gantt-chart {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .gantt-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .gantt-label {
-            width: 150px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .gantt-bar-container {
-            flex: 1;
-            height: 30px;
-            background: #f0f0f0;
-            border-radius: 15px;
-            position: relative;
-        }
-
-        .gantt-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #1e3c72, #2a5298);
-            border-radius: 15px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            color: white;
-            font-size: 12px;
-        }
-
-        .gantt-marker {
-            position: absolute;
-            width: 2px;
-            height: 40px;
-            background: #fa709a;
-            top: -5px;
-            z-index: 2;
-        }
-
-        /* Risk Matrix */
-        .risk-matrix {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-
-        .matrix-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .risk-item {
-            padding: 15px;
-            border-radius: 12px;
-            background: #f8f9fa;
-            border-left: 4px solid;
-        }
-
-        .risk-item.high {
-            border-left-color: #fa709a;
-        }
-
-        .risk-item.medium {
-            border-left-color: #fee140;
-        }
-
-        .risk-item.low {
-            border-left-color: #43e97b;
-        }
-
-        /* Supervisor Comments */
-        .comments-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-
-        .comments-section textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 14px;
-            min-height: 120px;
-            resize: vertical;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .comments-section textarea:focus {
-            border-color: #1e3c72;
-            box-shadow: 0 0 0 3px rgba(30,60,114,0.1);
-        }
-
-        .challenges-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .challenge-tag {
-            background: white;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 13px;
-            cursor: pointer;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .challenge-tag i {
-            font-size: 12px;
-        }
-
-        .challenge-tag:hover {
-            border-color: #1e3c72;
-            background: #f0f0f0;
-        }
-
-        .challenge-tag.selected {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border-color: transparent;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 14px 32px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn i {
-            font-size: 16px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            box-shadow: 0 5px 20px rgba(30,60,114,0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(30,60,114,0.4);
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #666;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-
-        .btn-success {
-            background: #43e97b;
-            color: white;
-        }
-
-        .btn-warning {
-            background: #fa709a;
-            color: white;
-        }
-
-        /* Projects Table */
+        
         .table-container {
             background: white;
-            border-radius: 20px;
-            padding: 25px;
+            border-radius: 15px;
+            padding: 20px;
             overflow-x: auto;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
-
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .search-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #f8f9fa;
-            padding: 10px 20px;
-            border-radius: 30px;
-        }
-
-        .search-box input {
-            border: none;
-            background: transparent;
-            padding: 5px;
-            width: 200px;
-        }
-
-        .search-box input:focus {
-            outline: none;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #f8f9fa;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            color: #555;
+        
+        .table {
+            margin-bottom: 0;
             font-size: 14px;
+            width: 100%;
         }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
-            color: #666;
+        
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px;
+            white-space: nowrap;
         }
-
-        tr:hover {
-            background: #f8f9fa;
+        
+        .table tbody td {
+            padding: 10px 12px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
         }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-size: 12px;
+        
+        .badge-confirmed {
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
             font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+            display: inline-block;
         }
-
-        .status-badge.on-track {
-            background: #43e97b20;
-            color: #43e97b;
+        
+        .badge-forecast {
+            background: #ffc107;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
         }
-
-        .status-badge.at-risk {
-            background: #fa709a20;
-            color: #fa709a;
-        }
-
-        .status-badge.completed {
-            background: #1e3c7220;
-            color: #1e3c72;
-        }
-
-        .action-icons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-icon {
-            color: #1e3c72;
-            cursor: pointer;
-            font-size: 18px;
-            transition: all 0.3s ease;
-            padding: 5px;
-            border-radius: 5px;
-        }
-
-        .action-icon:hover {
-            background: #1e3c7220;
-            transform: scale(1.1);
-        }
-
-        /* Chart Container */
-        .chart-container {
+        
+        .form-container {
             background: white;
             border-radius: 20px;
-            padding: 25px;
-            margin-top: 30px;
+            padding: 30px;
         }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+            font-size: 13px;
         }
-
-        .chart-tabs {
-            display: flex;
-            gap: 10px;
-        }
-
-        .chart-tab {
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
+        
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 10px 15px;
             font-size: 14px;
-            transition: all 0.3s ease;
+            width: 100%;
         }
-
-        .chart-tab.active {
-            background: #1e3c72;
-            color: white;
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.25);
+            outline: none;
         }
-
-        .chart-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .chart-card {
-            background: #f8f9fa;
-            padding: 20px;
+        
+        .report-section {
+            background: white;
             border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
         }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            display: none;
+        
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
         }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f0f0f0;
-            border-top-color: #1e3c72;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        
+        .report-header h2 {
+            color: var(--primary);
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        .report-header h3 {
+            color: #6c757d;
+            font-size: 18px;
+            font-weight: 400;
+            margin: 5px 0 0;
         }
-
-        /* Notifications */
-        .notification {
+        
+        .report-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .metric-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .metric-card .label {
+            color: #6c757d;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        
+        .sector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .sector-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 4px solid;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .sector-card.electrical { border-left-color: #ff6b6b; }
+        .sector-card.telecoms { border-left-color: #4facfe; }
+        .sector-card.civil { border-left-color: #43e97b; }
+        .sector-card.buildings { border-left-color: #fa709a; }
+        .sector-card.roads { border-left-color: #fcb045; }
+        .sector-card.mechanical { border-left-color: #5f0a87; }
+        
+        .status-message {
             position: fixed;
             top: 20px;
             right: 20px;
             padding: 15px 25px;
-            border-radius: 12px;
-            background: white;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            display: flex;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideIn 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .status-success { background: #28a745; }
+        .status-error { background: #dc3545; }
+        .status-info { background: #17a2b8; }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.95);
+            display: none;
+            justify-content: center;
             align-items: center;
-            gap: 10px;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            z-index: 1001;
+            z-index: 10000;
         }
-
-        .notification.show {
-            transform: translateX(0);
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-
-        .notification.success {
-            border-left: 4px solid #43e97b;
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
-        .notification.error {
-            border-left: 4px solid #fa709a;
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-
-        .notification.info {
-            border-left: 4px solid #1e3c72;
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
         }
-
+        
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-outline-secondary {
+            background: transparent;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .text-end { text-align: right; }
+        .text-center { text-align: center; }
+        .text-danger { color: #dc3545; }
+        .text-success { color: #28a745; }
+        .text-muted { color: #6c757d; }
+        
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 1rem; }
+        .mt-4 { margin-top: 1.5rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .me-2 { margin-right: 0.5rem; }
+        .ms-2 { margin-left: 0.5rem; }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -12px;
+        }
+        
+        .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-lg-4, .col-lg-6, .col-lg-8 {
+            padding: 0 12px;
+            box-sizing: border-box;
+        }
+        
+        .col-md-3 { width: 25%; }
+        .col-md-4 { width: 33.333%; }
+        .col-md-6 { width: 50%; }
+        .col-md-8 { width: 66.667%; }
+        .col-lg-4 { width: 33.333%; }
+        .col-lg-6 { width: 50%; }
+        .col-lg-8 { width: 66.667%; }
+        
         @media (max-width: 768px) {
-            .form-grid {
+            .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-lg-4, .col-lg-6, .col-lg-8 {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            .company-title {
+                font-size: 32px;
+            }
+            
+            .kpi-grid {
                 grid-template-columns: 1fr;
             }
             
-            .metrics-grid {
+            .report-metrics {
                 grid-template-columns: 1fr;
             }
-            
-            .progress-stats {
-                grid-template-columns: 1fr;
+        }
+        
+        .d-flex { display: flex; }
+        .justify-content-between { justify-content: space-between; }
+        .justify-content-end { justify-content: flex-end; }
+        .align-items-center { align-items: center; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 1rem; }
+        .w-100 { width: 100%; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        
+        .no-print {
+            @media print {
+                display: none;
             }
-            
-            .daily-stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .logo-container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .logo-container img {
-                height: 40px;
-            }
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px solid #dee2e6;
+            margin: 1rem 0;
+        }
+        
+        .connection-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .connection-info i {
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Loading Overlay -->
-        <div class="loading-overlay" id="loadingOverlay">
-            <div class="loading-spinner"></div>
-        </div>
-
-        <!-- Notification -->
-        <div class="notification" id="notification">
-            <i class="fas fa-check-circle" id="notificationIcon"></i>
-            <span id="notificationMessage">Notification message</span>
-        </div>
-
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div style="margin-top: 20px; color: var(--primary); font-weight: 600;" id="loadingMessage">Loading data from Google Sheets...</div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="main-container">
         <!-- Header -->
-        <div class="header">
-            <div class="logo">
-                <div class="logo-container">
-                    <img src="logo.png" alt="Onpoint Group Logo" onerror="this.style.display='none'">
-                    <h1><i class="fas fa-chart-line"></i> Onpoint Group</h1>
-                </div>
-                <div class="sync-status online" id="syncStatus">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <span>Connected to Google Sheets</span>
-                </div>
-            </div>
-            
-            <!-- Cost Centers -->
-            <div class="cost-center-grid">
-                <button class="cost-center-btn active" data-cost="HQ"><i class="fas fa-building"></i> Onpoint Group HQ</button>
-                <button class="cost-center-btn" data-cost="DI"><i class="fas fa-microchip"></i> DI Solutions</button>
-                <button class="cost-center-btn" data-cost="AQUA"><i class="fas fa-water"></i> Aqua Telecoms</button>
-                <button class="cost-center-btn" data-cost="NKANYEZI"><i class="fas fa-project-diagram"></i> Nkanyezi Projects</button>
-                <button class="cost-center-btn" data-cost="ONTIME"><i class="fas fa-clock"></i> Onpoint Ontime Solution</button>
-            </div>
-        </div>
-
-        <!-- Main Form -->
-        <div class="form-card">
-            <div class="form-title">
-                <i class="fas fa-clipboard-list"></i>
-                Project Registration & Tracking
-            </div>
-            
-            <div class="form-grid">
-                <div class="form-group">
-                    <label><i class="fas fa-tag"></i> Project Name</label>
-                    <input type="text" id="projectName" placeholder="Enter project name" value="Network Infrastructure Upgrade">
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-map-marker-alt"></i> Location</label>
-                    <input type="text" id="location" placeholder="Enter location" value="Johannesburg">
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-user-tie"></i> Supervisor</label>
-                    <input type="text" id="supervisor" placeholder="Enter supervisor name" value="John Smith">
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-user-cog"></i> Project Manager</label>
-                    <input type="text" id="projectManager" placeholder="Enter project manager" value="Sarah Johnson">
-                </div>
-            </div>
-
-            <!-- Project Dates -->
-            <div class="date-range">
-                <div class="date-item">
-                    <label><i class="fas fa-calendar-alt"></i> Start Date</label>
-                    <input type="date" id="startDate" onchange="calculateDates()">
-                </div>
-                <div class="date-item">
-                    <label><i class="fas fa-calendar-check"></i> Expected Completion</label>
-                    <input type="date" id="endDate" readonly>
-                </div>
-                <div class="date-item">
-                    <label><i class="fas fa-calendar-day"></i> Today's Date</label>
-                    <input type="date" id="currentDate" onchange="updateMetrics()">
-                </div>
-            </div>
-            
-            <div class="form-grid">
-                <div class="form-group">
-                    <label><i class="fas fa-file-invoice-dollar"></i> Total Project Income (ZAR)</label>
-                    <input type="number" id="totalInvoiced" placeholder="0.00" value="500000">
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-clock"></i> Period Duration</label>
-                    <div class="duration-group">
-                        <select id="durationNumber" onchange="calculateDates()">
-                            <script>
-                                for(let i = 1; i <= 31; i++) {
-                                    document.write(`<option value="${i}">${i}</option>`);
-                                }
-                            </script>
-                        </select>
-                        <select id="durationType" onchange="calculateDates()">
-                            <option value="days">Days</option>
-                            <option value="months">Months</option>
-                            <option value="years">Years</option>
-                        </select>
+        <div class="company-header">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <div class="company-title">
+                                ON POINT GROUP
+                            </div>
+                            <div class="company-subtitle">
+                                Project Financial Management System
+                            </div>
+                        </div>
+                        <div class="connection-status status-checking ms-3" id="connectionStatus">
+                            <i class="fas fa-sync-alt fa-spin me-2"></i> Connecting to Google Sheets...
+                        </div>
+                    </div>
+                    <div class="connection-info" id="connectionDetails">
+                        <i class="fas fa-database"></i> Loading configuration...
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-chart-pie"></i> Total Expenses Costs (ZAR)</label>
-                    <input type="number" id="totalCosts" placeholder="0.00" value="350000">
-                </div>
-            </div>
-            
-            <div class="form-grid">
-                <div class="form-group">
-                    <label><i class="fas fa-bullseye"></i> Overall Project Target</label>
-                    <div class="target-group">
-                        <input type="number" id="overallTargetValue" placeholder="Total project target" value="1000">
-                        <select id="overallTargetMeasure">
-                            <option value="meters">Meters</option>
-                            <option value="km">Kilometers</option>
-                            <option value="units">Units</option>
-                            <option value="percentage">Percentage</option>
-                        </select>
-                    </div>
-                    <small style="color: #666;">Total project completion target</small>
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-chart-line"></i> Overall Progress to Date</label>
-                    <input type="number" id="overallProgress" placeholder="Total completed to date" value="450">
-                    <small style="color: #666;">Total progress achieved so far</small>
-                </div>
-            </div>
-            
-            <div class="form-grid">
-                <div class="form-group">
-                    <label><i class="fas fa-bullseye"></i> Daily Target Set</label>
-                    <div class="target-group">
-                        <input type="number" id="dailyTargetValue" placeholder="Daily target" value="50">
-                        <select id="dailyTargetMeasure">
-                            <option value="meters">Meters</option>
-                            <option value="km">Kilometers</option>
-                            <option value="units">Units</option>
-                            <option value="percentage">Percentage</option>
-                        </select>
-                    </div>
-                    <small style="color: #666;">Target for today's work</small>
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-chart-line"></i> Today's Actual Progress</label>
-                    <input type="number" id="actualProgress" placeholder="Today's achievement" value="45">
-                    <small style="color: #666;">Actual progress made today</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Metrics Dashboard -->
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-icon"><i class="fas fa-coins"></i></div>
-                <div class="metric-label">Daily Income</div>
-                <div class="metric-value" id="dailyIncome">R 2,739.73</div>
-                <div class="metric-sub">Based on project duration</div>
-            </div>
-            
-            <div class="metric-card green">
-                <div class="metric-icon"><i class="fas fa-credit-card"></i></div>
-                <div class="metric-label">Daily Expenses</div>
-                <div class="metric-value" id="dailyExpenses">R 1,917.81</div>
-                <div class="metric-sub">Operating costs per day</div>
-            </div>
-            
-            <div class="metric-card orange">
-                <div class="metric-icon"><i class="fas fa-chart-bar"></i></div>
-                <div class="metric-label">Daily P/L</div>
-                <div class="metric-value" id="dailyProfit">R 821.92</div>
-                <div class="metric-sub">Net daily earnings</div>
-            </div>
-        </div>
-
-        <!-- Daily Performance Section - NEW -->
-        <div class="daily-performance">
-            <div class="daily-header">
-                <h3><i class="fas fa-calendar-day"></i> Today's Performance (11 March 2026)</h3>
-                <span class="daily-badge" id="dailyStatusBadge">Behind Target</span>
-            </div>
-            <div class="daily-stats">
-                <div class="daily-card">
-                    <div class="daily-icon"><i class="fas fa-bullseye"></i></div>
-                    <div class="daily-info">
-                        <div class="daily-label">Daily Target</div>
-                        <div class="daily-value" id="dailyTargetDisplay">50 meters</div>
-                    </div>
-                </div>
-                <div class="daily-card">
-                    <div class="daily-icon"><i class="fas fa-check-circle"></i></div>
-                    <div class="daily-info">
-                        <div class="daily-label">Today's Actual</div>
-                        <div class="daily-value" id="dailyActualDisplay">45 meters</div>
-                    </div>
-                </div>
-                <div class="daily-card">
-                    <div class="daily-icon"><i class="fas fa-chart-line"></i></div>
-                    <div class="daily-info">
-                        <div class="daily-label">Daily Variance</div>
-                        <div class="daily-value" id="dailyVarianceDisplay">-5 meters</div>
-                        <div class="daily-target" id="dailyVariancePercent">-10%</div>
-                    </div>
-                </div>
-                <div class="daily-card">
-                    <div class="daily-icon"><i class="fas fa-percent"></i></div>
-                    <div class="daily-info">
-                        <div class="daily-label">Daily Achievement</div>
-                        <div class="daily-value" id="dailyAchievement">90%</div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <span class="revenue-model-badge">
+                        <i class="fas fa-chart-line"></i> Revenue Model
+                    </span>
+                    <div class="mt-2 text-muted">
+                        <i class="fas fa-calendar"></i> <span id="currentDate"></span>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Project Overall Progress Tracking -->
-        <div class="progress-section">
-            <div class="progress-header">
-                <h3><i class="fas fa-tasks"></i> Overall Project Progress</h3>
-                <div class="progress-badge at-risk" id="statusBadge">In Progress - 45% Complete</div>
+        
+        <!-- Debug Panel -->
+        <div class="debug-panel" id="debugPanel">
+            <div class="d-flex justify-content-between">
+                <strong><i class="fas fa-bug"></i> Debug Console</strong>
+                <button class="btn btn-sm btn-outline-light" onclick="document.getElementById('debugPanel').style.display='none'">×</button>
             </div>
-            
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progressBar" style="width: 45%">45%</div>
-            </div>
-            
-            <div class="progress-stats">
-                <div class="stat-card">
-                    <div class="stat-label">Overall Target</div>
-                    <div class="stat-value" id="overallTargetDisplay">1000 units</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Progress to Date</div>
-                    <div class="stat-value" id="overallProgressDisplay">450 units</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Overall Variance</div>
-                    <div class="stat-value variance-negative" id="overallVarianceDisplay">-550 units</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Remaining</div>
-                    <div class="stat-value" id="remainingDisplay">550 units</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Daily Income</div>
-                    <div class="stat-value" id="dailyIncomeStat">R 2,740</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Daily P/L</div>
-                    <div class="stat-value" id="dailyProfitStat">R 822</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Days Left</div>
-                    <div class="stat-value" id="daysToCompletion">15 days</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Schedule Variance</div>
-                    <div class="stat-value variance-negative" id="scheduleVariance">-5%</div>
-                </div>
-            </div>
+            <div id="debugLog"></div>
         </div>
-
-        <!-- Timeline Gantt Chart -->
-        <div class="timeline-section">
-            <div class="timeline-header">
-                <h3><i class="fas fa-chart-gantt"></i> Project Timeline</h3>
-                <span>Last Updated: <span id="lastUpdated">Just now</span></span>
-            </div>
-            <div class="gantt-chart" id="ganttChart">
-                <!-- Dynamic Gantt chart will be populated here -->
-            </div>
-        </div>
-
-        <!-- Risk Matrix -->
-        <div class="risk-matrix">
-            <h3><i class="fas fa-exclamation-triangle"></i> Risk Assessment Matrix</h3>
-            <div class="matrix-grid">
-                <div class="risk-item high">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <h4>Weather Delays</h4>
-                    <p>Probability: High</p>
-                    <p>Impact: Medium</p>
-                </div>
-                <div class="risk-item medium">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h4>Supply Chain</h4>
-                    <p>Probability: Medium</p>
-                    <p>Impact: High</p>
-                </div>
-                <div class="risk-item low">
-                    <i class="fas fa-check-circle"></i>
-                    <h4>Labor Availability</h4>
-                    <p>Probability: Low</p>
-                    <p>Impact: Medium</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Supervisor Comments -->
-        <div class="comments-section">
-            <h3><i class="fas fa-comment"></i> Supervisor Report</h3>
-            <textarea id="supervisorComments" placeholder="Provide reasons for missed targets, challenges faced, and any additional notes...">Weather delays and equipment issues have impacted progress. Working on mitigation strategies.</textarea>
-            
-            <div class="challenges-tags">
-                <span class="challenge-tag selected"><i class="fas fa-cloud-rain"></i> Weather Delay</span>
-                <span class="challenge-tag"><i class="fas fa-tools"></i> Equipment Issues</span>
-                <span class="challenge-tag"><i class="fas fa-users-slash"></i> Labor Shortage</span>
-                <span class="challenge-tag"><i class="fas fa-truck"></i> Material Delay</span>
-                <span class="challenge-tag"><i class="fas fa-microchip"></i> Technical Challenges</span>
-                <span class="challenge-tag"><i class="fas fa-file-signature"></i> Permit Issues</span>
-                <span class="challenge-tag"><i class="fas fa-users"></i> Community Issues</span>
-                <span class="challenge-tag"><i class="fas fa-boxes"></i> Supply Chain</span>
-            </div>
-        </div>
-
+        
         <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="btn btn-secondary" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
-            <button class="btn btn-secondary" onclick="saveToSheets()"><i class="fas fa-save"></i> Save to Sheets</button>
-            <button class="btn btn-success" onclick="syncWithSheets()"><i class="fas fa-cloud-upload-alt"></i> Sync Now</button>
-            <button class="btn btn-primary" onclick="generatePDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
-            <button class="btn btn-primary" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export Excel</button>
-            <button class="btn btn-warning" onclick="updateMetrics()"><i class="fas fa-calculator"></i> Recalculate</button>
+        <div class="row mb-3 no-print">
+            <div class="col-12 text-center">
+                <button class="btn btn-info me-2" onclick="toggleDebug()">
+                    <i class="fas fa-bug"></i> Toggle Debug
+                </button>
+                <button class="btn btn-primary me-2" onclick="testDirectConnection()">
+                    <i class="fas fa-plug"></i> Test Connection
+                </button>
+                <button class="btn btn-warning me-2" onclick="window.open('https://script.google.com/macros/s/AKfycbzutcqBaH3-KDzJlAAIDvMpjEDSq2KnNFFXEVJTdB6i56ksUYtT2WrqE50jwS9YtqUbxA/exec', '_blank')">
+                    <i class="fas fa-external-link-alt"></i> Open Script URL
+                </button>
+                <button class="btn btn-success" onclick="loadProjectsFromSheet()">
+                    <i class="fas fa-sync-alt"></i> Retry Connection
+                </button>
+            </div>
         </div>
-
-        <!-- Projects Table -->
-        <div class="table-container">
-            <div class="table-header">
-                <h3><i class="fas fa-database"></i> Active Projects</h3>
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search projects..." onkeyup="filterProjects()">
+        
+        <!-- Navigation -->
+        <div class="nav-custom no-print">
+            <div class="nav">
+                <button class="nav-link active" onclick="showTab('dashboard', this)">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </button>
+                <button class="nav-link" onclick="showTab('orderbook', this)">
+                    <i class="fas fa-book"></i> Order Book
+                </button>
+                <button class="nav-link" onclick="showTab('dataentry', this)">
+                    <i class="fas fa-edit"></i> Data Entry
+                </button>
+                <button class="nav-link" onclick="showTab('financial', this)">
+                    <i class="fas fa-file-invoice-dollar"></i> Financial Report
+                </button>
+            </div>
+        </div>
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content">
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Order Book</div>
+                    <div class="kpi-value" id="totalOrderBook">R 0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Confirmed</div>
+                    <div class="kpi-value" id="confirmedTotal">R 0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Forecast</div>
+                    <div class="kpi-value" id="forecastTotal">R 0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Gross Margin</div>
+                    <div class="kpi-value" id="grossMargin">0%</div>
                 </div>
             </div>
-            <table id="projectsTable">
-                <thead>
-                    <tr>
-                        <th>Project ID</th>
-                        <th>Project Name</th>
-                        <th>Cost Center</th>
-                        <th>Supervisor</th>
-                        <th>Start Date</th>
-                        <th>Overall Progress</th>
-                        <th>Daily Progress</th>
-                        <th>Daily P/L</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- Dynamic content will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Charts -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3><i class="fas fa-chart-bar"></i> Analytics Dashboard</h3>
-                <div class="chart-tabs">
-                    <span class="chart-tab active" onclick="switchChart('financial')">Financial</span>
-                    <span class="chart-tab" onclick="switchChart('progress')">Progress</span>
-                    <span class="chart-tab" onclick="switchChart('daily')">Daily Performance</span>
+            
+            <!-- Project Manager Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-users"></i> Project Manager Summary
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Project Manager</th>
+                                    <th>Category</th>
+                                    <th>Confirmed</th>
+                                    <th>Forecast</th>
+                                    <th>Total</th>
+                                    <th>Projects</th>
+                                </tr>
+                            </thead>
+                            <tbody id="managerSummaryBody">
+                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="chart-grid" id="chartGrid">
-                <!-- Charts will be populated dynamically -->
+        </div>
+        
+        <!-- Order Book Tab -->
+        <div id="orderbook" class="tab-content" style="display:none;">
+            <!-- Filters -->
+            <div class="card no-print">
+                <div class="card-header">
+                    <i class="fas fa-filter"></i> Filter Order Book
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="categoryFilter">
+                                <option value="All">All Categories</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Project Manager</label>
+                            <select class="form-select" id="managerFilter">
+                                <option value="All">All Managers</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="statusFilter">
+                                <option value="All">All Status</option>
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Forecast">Forecast</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100 mt-4" onclick="applyFilters()">
+                                <i class="fas fa-search"></i> Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Book Table -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-list"></i> Complete Order Book
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="table table-hover" id="orderBookTable">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Project Manager</th>
+                                    <th>Project</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                    <th>Mar-26</th>
+                                    <th>Apr-26</th>
+                                    <th>May-26</th>
+                                    <th>Jun-26</th>
+                                    <th>Jul-26</th>
+                                    <th>Aug-26</th>
+                                    <th>Sep-26</th>
+                                    <th>Oct-26</th>
+                                    <th>Nov-26</th>
+                                    <th>Dec-26</th>
+                                    <th>Jan-27</th>
+                                    <th>Feb-27</th>
+                                    <th>Total</th>
+                                    <th>Check</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderBookBody">
+                                <tr><td colspan="19" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Entry Tab -->
+        <div id="dataentry" class="tab-content" style="display:none;">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="form-container">
+                        <h4 class="mb-4"><i class="fas fa-pen"></i> Project Data Entry</h4>
+                        
+                        <form id="projectForm" onsubmit="event.preventDefault();">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Category *</label>
+                                    <select class="form-select" id="projectCategory" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Electrical">Electrical</option>
+                                        <option value="Civil">Civil</option>
+                                        <option value="Mechanical">Mechanical</option>
+                                        <option value="General Buildings">General Buildings</option>
+                                        <option value="Roads">Roads</option>
+                                        <option value="Telecoms">Telecoms</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Project Manager *</label>
+                                    <input type="text" class="form-control" id="projectManager" list="managersList" required placeholder="Type or select manager">
+                                    <datalist id="managersList"></datalist>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label class="form-label">Project Name *</label>
+                                    <input type="text" class="form-control" id="projectName" required placeholder="Enter project name">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Status *</label>
+                                    <select class="form-select" id="projectStatus" required>
+                                        <option value="Confirmed">Confirmed</option>
+                                        <option value="Forecast">Forecast</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Total Amount (R) *</label>
+                                    <input type="number" class="form-control" id="totalAmount" step="1000" min="0" required placeholder="e.g., 28400000">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Margin %</label>
+                                    <input type="number" class="form-control" id="margin" step="0.1" min="0" max="100" value="30">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Retention %</label>
+                                    <input type="number" class="form-control" id="retention" step="0.1" min="0" max="20" value="10">
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header bg-light text-dark">
+                                    Monthly Distribution (Mar 2026 - Feb 2027)
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Mar-26</label>
+                                            <input type="number" class="form-control month-input" id="mar26" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Apr-26</label>
+                                            <input type="number" class="form-control month-input" id="apr26" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">May-26</label>
+                                            <input type="number" class="form-control month-input" id="may26" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Jun-26</label>
+                                            <input type="number" class="form-control month-input" id="jun26" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Jul-26</label>
+                                            <input type="number" class="form-control month-input" id="jul26" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Aug-26</label>
+                                            <input type="number" class="form-control month-input" id="aug26" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Sep-26</label>
+                                            <input type="number" class="form-control month-input" id="sep26" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Oct-26</label>
+                                            <input type="number" class="form-control month-input" id="oct26" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Nov-26</label>
+                                            <input type="number" class="form-control month-input" id="nov26" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Dec-26</label>
+                                            <input type="number" class="form-control month-input" id="dec26" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Jan-27</label>
+                                            <input type="number" class="form-control month-input" id="jan27" value="0" min="0" step="1000">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">Feb-27</label>
+                                            <input type="number" class="form-control month-input" id="feb27" value="0" min="0" step="1000">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <button type="button" class="btn btn-outline-primary" onclick="distributeEvenly()">
+                                                <i class="fas fa-calculator"></i> Distribute Evenly
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6 text-end">
+                                            <strong>Total Scheduled: R <span id="scheduledTotal">0</span></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Notes / Comments</label>
+                                <textarea class="form-control" id="projectNotes" rows="2" placeholder="Add any notes or comments..."></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" onclick="submitProject()">
+                                    <i class="fas fa-save"></i> Save Project
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                    <i class="fas fa-undo"></i> Reset Form
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Financial Report Tab -->
+        <div id="financial" class="tab-content" style="display:none;">
+            <div class="report-section">
+                <div class="report-header">
+                    <h2>ON POINT GROUP</h2>
+                    <h3>Revenue Model & Order Book Report</h3>
+                    <p class="text-muted">Generated: <span id="reportDate"></span></p>
+                </div>
+                
+                <!-- Revenue Model Summary -->
+                <div class="report-metrics">
+                    <div class="metric-card">
+                        <div class="value" id="reportTotalOrderBook">R 0</div>
+                        <div class="label">Total Order Book</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="value" id="reportConfirmed">R 0</div>
+                        <div class="label">Confirmed</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="value" id="reportForecast">R 0</div>
+                        <div class="label">Forecast</div>
+                    </div>
+                </div>
+                
+                <!-- Order Book Table -->
+                <div class="table-container mt-4">
+                    <table class="table table-bordered" id="financialReportTable">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Project Manager</th>
+                                <th>Project</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Mar-26</th>
+                                <th>Apr-26</th>
+                                <th>May-26</th>
+                                <th>Jun-26</th>
+                                <th>Jul-26</th>
+                                <th>Aug-26</th>
+                                <th>Sep-26</th>
+                                <th>Oct-26</th>
+                                <th>Nov-26</th>
+                                <th>Dec-26</th>
+                                <th>Jan-27</th>
+                                <th>Feb-27</th>
+                                <th>Total</th>
+                                <th>Check</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financialReportBody">
+                            <tr><td colspan="19" class="text-center">Loading...</td></tr>
+                        </tbody>
+                        <tfoot id="financialReportFooter" style="font-weight: bold; background: #f8f9fa;">
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <!-- Sector Summary -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-light text-dark">
+                                Revenue by Sector
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Sector</th>
+                                            <th class="text-end">Revenue</th>
+                                            <th class="text-end">Margin</th>
+                                            <th class="text-end">Gross Profit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sectorRevenueBody">
+                                        <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-light text-dark">
+                                Gross Profit by Sector
+                            </div>
+                            <div class="card-body">
+                                <div class="sector-grid" id="sectorProfitGrid">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Print/Export Buttons -->
+                <div class="row mt-4 no-print">
+                    <div class="col-12 text-center">
+                        <button class="btn btn-primary me-2" onclick="window.print()">
+                            <i class="fas fa-print"></i> Print Report
+                        </button>
+                        <button class="btn btn-success" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> Export to Excel
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
+    
     <script>
-        // Configuration
-        const CONFIG = {
-            GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz_u52SCdDozc6bN0_0s8Ew8RgTbOq6qCb-km71F8UO6IwxEEO6QlFBhcTZXHOSGzI8/exec',
-            SHEET_ID: '1eGa1jErIa2bQgyVqz0XelQFpkJ6LFch0-NGccX8JP9s',
-            SHEET_NAME: 'Projects Manager',
-            DRIVE_FOLDER_ID: '1al8guXtgk-PJWwdNvd2umUXYv4AvwXSM'
-        };
-
-        // Global variables
-        let currentCostCenter = 'HQ';
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmfmCfb7Pq-R6Lv4ijdF5k89isPx9rDtiK5HhKSzoDZtKEFWjfQxl_z1d4TsE6_Ftz/exec';
+        
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
         let projects = [];
-        let syncStatus = 'online';
-        let autoSyncInterval;
-
-        // Initialize on load
-        window.onload = function() {
-            initializeApp();
-            startAutoSync();
+        let filteredProjects = [];
+        
+        const managers = [
+            'Moses', 'Johan', 'Siyanda', 'Dave', 'James', 'Rayman', 
+            'Timothy', 'Stanley', 'Brian', 'Tony', 'Govern', 'Graham',
+            'Ronald', 'Petros', 'Elroy', 'Mesh', 'Vusi', 'Tinotenda',
+            'Sydney', 'Andrew', 'Phillip', 'Moeti', 'Roads Site Agent',
+            'Civil Site Agent'
+        ];
+        
+        const categories = ['Electrical', 'Civil', 'Mechanical', 'General Buildings', 'Roads', 'Telecoms'];
+        
+        const margins = {
+            'Electrical': 45,
+            'Telecoms': 45,
+            'Civil': 20,
+            'General Buildings': 30,
+            'Roads': 20,
+            'Mechanical': 30
         };
-
-        function initializeApp() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('startDate').value = today;
-            document.getElementById('currentDate').value = today;
-            document.getElementById('durationNumber').value = '30';
-            calculateDates();
-            updateMetrics();
-            loadProjectsFromSheets();
-            initializeGanttChart();
-            initializeCharts();
+        
+        // ============================================
+        // DEBUG FUNCTIONS
+        // ============================================
+        function toggleDebug() {
+            const panel = document.getElementById('debugPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function addDebug(message, type = 'info') {
+            const log = document.getElementById('debugLog');
+            const entry = document.createElement('div');
+            entry.className = 'debug-entry';
+            const timestamp = new Date().toLocaleTimeString();
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            console.log(`[DEBUG] ${message}`);
+        }
+        
+        // ============================================
+        // SIMPLIFIED API CALL - Direct fetch with error handling
+        // ============================================
+        async function callAppsScript(action, data = {}) {
+            addDebug(`Calling action: ${action}`);
             
-            // Add event listeners for real-time updates
-            document.getElementById('totalInvoiced').addEventListener('input', updateMetrics);
-            document.getElementById('totalCosts').addEventListener('input', updateMetrics);
-            document.getElementById('overallTargetValue').addEventListener('input', updateMetrics);
-            document.getElementById('overallProgress').addEventListener('input', updateMetrics);
-            document.getElementById('dailyTargetValue').addEventListener('input', updateMetrics);
-            document.getElementById('actualProgress').addEventListener('input', updateMetrics);
-        }
-
-        function startAutoSync() {
-            // Auto sync every 5 minutes
-            autoSyncInterval = setInterval(syncWithSheets, 300000);
-        }
-
-        // Format number with commas for ZAR currency
-        function formatZAR(number) {
-            return 'R ' + number.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-
-        // Format number with commas
-        function formatNumber(number) {
-            return number.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-
-        // Show notification
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const icon = document.getElementById('notificationIcon');
-            const messageEl = document.getElementById('notificationMessage');
+            const payload = {
+                action: action,
+                data: data
+            };
             
-            icon.className = type === 'success' ? 'fas fa-check-circle' : 
-                            type === 'error' ? 'fas fa-exclamation-circle' : 
-                            'fas fa-info-circle';
-            
-            notification.className = `notification ${type}`;
-            messageEl.textContent = message;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-
-        // Show/hide loading
-        function setLoading(show) {
-            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
-        }
-
-        // Cost Center Selection
-        document.querySelectorAll('.cost-center-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.cost-center-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentCostCenter = this.dataset.cost;
-                updateMetrics();
-                showNotification(`Switched to ${this.textContent}`, 'info');
-            });
-        });
-
-        // Challenge Tags Selection
-        document.querySelectorAll('.challenge-tag').forEach(tag => {
-            tag.addEventListener('click', function() {
-                this.classList.toggle('selected');
-            });
-        });
-
-        function calculateDates() {
-            const startDate = document.getElementById('startDate').value;
-            const durationNumber = parseInt(document.getElementById('durationNumber').value) || 1;
-            const durationType = document.getElementById('durationType').value;
-            
-            if (startDate) {
-                let days = durationNumber;
-                if (durationType === 'months') days = durationNumber * 30;
-                if (durationType === 'years') days = durationNumber * 365;
+            // Try JSONP approach first
+            return new Promise((resolve, reject) => {
+                const callbackName = 'callback_' + Date.now();
+                const script = document.createElement('script');
                 
-                const start = new Date(startDate);
-                const end = new Date(start);
-                end.setDate(start.getDate() + days);
+                // Build URL with parameters
+                const url = new URL(SCRIPT_URL);
+                url.searchParams.append('action', action);
+                url.searchParams.append('callback', callbackName);
+                url.searchParams.append('data', JSON.stringify(data));
                 
-                document.getElementById('endDate').value = end.toISOString().split('T')[0];
+                addDebug(`JSONP URL: ${url.toString()}`);
                 
-                // Set today's date if not set
-                if (!document.getElementById('currentDate').value) {
-                    const today = new Date().toISOString().split('T')[0];
-                    document.getElementById('currentDate').value = today;
-                }
-                
-                updateMetrics();
-            }
-        }
-
-        function updateMetrics() {
-            // Get financial values
-            const totalInvoiced = parseFloat(document.getElementById('totalInvoiced').value) || 0;
-            const totalCosts = parseFloat(document.getElementById('totalCosts').value) || 0;
-            const durationNumber = parseInt(document.getElementById('durationNumber').value) || 1;
-            const durationType = document.getElementById('durationType').value;
-            
-            // Calculate days
-            let totalDays = durationNumber;
-            if (durationType === 'months') totalDays = durationNumber * 30;
-            if (durationType === 'years') totalDays = durationNumber * 365;
-            
-            // Calculate daily financial metrics
-            const dailyIncome = totalInvoiced / totalDays;
-            const dailyExpenses = totalCosts / totalDays;
-            const dailyProfit = dailyIncome - dailyExpenses;
-            const burnRate = totalCosts / totalDays;
-            
-            // Update financial displays
-            document.getElementById('dailyIncome').textContent = formatZAR(dailyIncome);
-            document.getElementById('dailyExpenses').textContent = formatZAR(dailyExpenses);
-            document.getElementById('dailyProfit').textContent = formatZAR(dailyProfit);
-            document.getElementById('dailyIncomeStat').textContent = formatZAR(dailyIncome);
-            document.getElementById('dailyProfitStat').textContent = formatZAR(dailyProfit);
-            document.getElementById('burnRate').textContent = formatZAR(burnRate) + '/day';
-            
-            // Get overall project progress values
-            const overallTarget = parseFloat(document.getElementById('overallTargetValue').value) || 0;
-            const overallProgress = parseFloat(document.getElementById('overallProgress').value) || 0;
-            const overallMeasure = document.getElementById('overallTargetMeasure').value;
-            
-            // Calculate overall project metrics
-            const overallVariance = overallProgress - overallTarget;
-            const overallProgressPercent = overallTarget > 0 ? (overallProgress / overallTarget) * 100 : 0;
-            const remaining = overallTarget - overallProgress;
-            
-            // Update overall project displays
-            document.getElementById('overallTargetDisplay').textContent = overallTarget + ' ' + overallMeasure;
-            document.getElementById('overallProgressDisplay').textContent = overallProgress + ' ' + overallMeasure;
-            document.getElementById('overallVarianceDisplay').textContent = (overallVariance >= 0 ? '+' : '') + overallVariance + ' ' + overallMeasure;
-            document.getElementById('overallVarianceDisplay').className = `stat-value ${overallVariance >= 0 ? 'variance-positive' : 'variance-negative'}`;
-            document.getElementById('remainingDisplay').textContent = remaining + ' ' + overallMeasure;
-            
-            // Update progress bar with overall project progress
-            document.getElementById('progressBar').style.width = `${Math.min(overallProgressPercent, 100)}%`;
-            document.getElementById('progressBar').textContent = `${Math.round(overallProgressPercent)}%`;
-            
-            // Get daily target values
-            const dailyTarget = parseFloat(document.getElementById('dailyTargetValue').value) || 0;
-            const dailyActual = parseFloat(document.getElementById('actualProgress').value) || 0;
-            const dailyMeasure = document.getElementById('dailyTargetMeasure').value;
-            
-            // Calculate daily metrics
-            const dailyVariance = dailyActual - dailyTarget;
-            const dailyAchievementPercent = dailyTarget > 0 ? (dailyActual / dailyTarget) * 100 : 0;
-            
-            // Update daily performance displays
-            document.getElementById('dailyTargetDisplay').textContent = dailyTarget + ' ' + dailyMeasure;
-            document.getElementById('dailyActualDisplay').textContent = dailyActual + ' ' + dailyMeasure;
-            document.getElementById('dailyVarianceDisplay').textContent = (dailyVariance >= 0 ? '+' : '') + dailyVariance + ' ' + dailyMeasure;
-            document.getElementById('dailyVariancePercent').textContent = (dailyAchievementPercent - 100).toFixed(1) + '%';
-            document.getElementById('dailyAchievement').textContent = dailyAchievementPercent.toFixed(1) + '%';
-            
-            // Update daily status badge
-            const dailyStatusBadge = document.getElementById('dailyStatusBadge');
-            if (dailyAchievementPercent >= 100) {
-                dailyStatusBadge.textContent = 'Target Achieved';
-                dailyStatusBadge.style.background = '#43e97b20';
-                dailyStatusBadge.style.color = '#43e97b';
-            } else if (dailyAchievementPercent >= 80) {
-                dailyStatusBadge.textContent = 'Near Target';
-                dailyStatusBadge.style.background = '#fee14020';
-                dailyStatusBadge.style.color = '#fee140';
-            } else {
-                dailyStatusBadge.textContent = 'Behind Target';
-                dailyStatusBadge.style.background = '#fa709a20';
-                dailyStatusBadge.style.color = '#fa709a';
-            }
-            
-            // Update overall project status badge
-            const statusBadge = document.getElementById('statusBadge');
-            if (overallProgressPercent >= 100) {
-                statusBadge.className = 'progress-badge completed';
-                statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Completed - 100%';
-            } else {
-                statusBadge.className = 'progress-badge at-risk';
-                statusBadge.innerHTML = `<i class="fas fa-spinner"></i> In Progress - ${Math.round(overallProgressPercent)}% Complete`;
-            }
-            
-            // Calculate days to completion and variance
-            const startDate = document.getElementById('startDate').value;
-            const currentDate = document.getElementById('currentDate').value;
-            const endDate = document.getElementById('endDate').value;
-            
-            if (startDate && currentDate && endDate) {
-                const start = new Date(startDate);
-                const current = new Date(currentDate);
-                const end = new Date(endDate);
-                
-                const totalProjectDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-                const daysElapsed = Math.ceil((current - start) / (1000 * 60 * 60 * 24));
-                const daysRemaining = Math.ceil((end - current) / (1000 * 60 * 60 * 24));
-                
-                // Calculate expected progress based on time elapsed
-                const expectedProgress = totalProjectDays > 0 ? (daysElapsed / totalProjectDays) * 100 : 0;
-                const timeVariance = overallProgressPercent - expectedProgress;
-                
-                document.getElementById('daysToCompletion').textContent = daysRemaining + ' days';
-                
-                let scheduleClass = timeVariance >= 0 ? 'variance-positive' : 'variance-negative';
-                document.getElementById('scheduleVariance').textContent = (timeVariance >= 0 ? '+' : '') + timeVariance.toFixed(1) + '%';
-                document.getElementById('scheduleVariance').className = `stat-value ${scheduleClass}`;
-            }
-            
-            // Update profit/loss color
-            const profitElement = document.getElementById('dailyProfit');
-            profitElement.parentElement.className = `metric-card ${dailyProfit >= 0 ? 'green' : 'orange'}`;
-            
-            // Update last updated time
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
-        }
-
-        function initializeGanttChart() {
-            const ganttChart = document.getElementById('ganttChart');
-            const phases = [
-                { name: 'Planning & Design', start: 0, duration: 20 },
-                { name: 'Procurement', start: 15, duration: 25 },
-                { name: 'Installation', start: 30, duration: 40 },
-                { name: 'Testing', start: 60, duration: 15 },
-                { name: 'Handover', start: 70, duration: 10 }
-            ];
-            
-            let ganttHtml = '';
-            phases.forEach(phase => {
-                ganttHtml += `
-                    <div class="gantt-row">
-                        <div class="gantt-label">${phase.name}</div>
-                        <div class="gantt-bar-container">
-                            <div class="gantt-bar" style="width: ${phase.duration}%; left: ${phase.start}%">
-                                ${phase.duration} days
-                            </div>
-                            <div class="gantt-marker" style="left: 50%"></div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            ganttChart.innerHTML = ganttHtml;
-        }
-
-        function initializeCharts() {
-            const chartGrid = document.getElementById('chartGrid');
-            chartGrid.innerHTML = `
-                <div class="chart-card">
-                    <h4>Financial Performance</h4>
-                    <div style="height: 200px; display: flex; align-items: flex-end; gap: 10px; margin-top: 20px;">
-                        <div style="flex: 1; text-align: center;">
-                            <div style="height: 150px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                            <span style="font-size: 12px;">Income</span>
-                        </div>
-                        <div style="flex: 1; text-align: center;">
-                            <div style="height: 100px; width: 100%; background: linear-gradient(180deg, #43e97b, #38f9d7); border-radius: 10px 10px 0 0;"></div>
-                            <span style="font-size: 12px;">Expenses</span>
-                        </div>
-                        <div style="flex: 1; text-align: center;">
-                            <div style="height: 50px; width: 100%; background: linear-gradient(180deg, #fa709a, #fee140); border-radius: 10px 10px 0 0;"></div>
-                            <span style="font-size: 12px;">Profit</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="chart-card">
-                    <h4>Overall Progress Trend</h4>
-                    <div style="height: 200px; display: flex; align-items: flex-end; gap: 10px; margin-top: 20px;">
-                        <div style="flex: 1; text-align: center;">
-                            <div style="height: 90px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                            <span style="font-size: 12px;">Week 1</span>
-                        </div>
-                        <div style="flex: 1; text-align: center;">
-                            <div style="height: 120px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                            <span style="font-size: 12px;">Week 2</span>
-                        </div>
-                        <div style="flex: 1; text-align: center;">
-                            <div style="height: 150px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                            <span style="font-size: 12px;">Week 3</span>
-                        </div>
-                        <div style="flex: 1; text-align: center;">
-                            <div style="height: 180px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                            <span style="font-size: 12px;">Week 4</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function switchChart(type) {
-            document.querySelectorAll('.chart-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Update charts based on type
-            if (type === 'daily') {
-                document.getElementById('chartGrid').innerHTML = `
-                    <div class="chart-card">
-                        <h4>Daily Performance - Last 7 Days</h4>
-                        <div style="height: 200px; display: flex; align-items: flex-end; gap: 10px; margin-top: 20px;">
-                            <div style="flex: 1; text-align: center;">
-                                <div style="height: 140px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                                <span style="font-size: 12px;">Mon</span>
-                            </div>
-                            <div style="flex: 1; text-align: center;">
-                                <div style="height: 160px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                                <span style="font-size: 12px;">Tue</span>
-                            </div>
-                            <div style="flex: 1; text-align: center;">
-                                <div style="height: 120px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                                <span style="font-size: 12px;">Wed</span>
-                            </div>
-                            <div style="flex: 1; text-align: center;">
-                                <div style="height: 180px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                                <span style="font-size: 12px;">Thu</span>
-                            </div>
-                            <div style="flex: 1; text-align: center;">
-                                <div style="height: 150px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                                <span style="font-size: 12px;">Fri</span>
-                            </div>
-                            <div style="flex: 1; text-align: center;">
-                                <div style="height: 90px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                                <span style="font-size: 12px;">Sat</span>
-                            </div>
-                            <div style="flex: 1; text-align: center;">
-                                <div style="height: 100px; width: 100%; background: linear-gradient(180deg, #1e3c72, #2a5298); border-radius: 10px 10px 0 0;"></div>
-                                <span style="font-size: 12px;">Sun</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                initializeCharts();
-            }
-        }
-
-        // Google Sheets Integration
-        async function loadProjectsFromSheets() {
-            if (CONFIG.GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
-                // Demo mode - load sample data
-                loadSampleProjects();
-                return;
-            }
-
-            setLoading(true);
-            try {
-                const response = await fetch(`${CONFIG.GOOGLE_SCRIPT_URL}?action=getProjects`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    projects = data.data;
-                    renderProjectsTable();
-                    updateSyncStatus('online');
-                    showNotification('Projects loaded from Google Sheets', 'success');
-                } else {
-                    throw new Error(data.error);
-                }
-            } catch (error) {
-                console.error('Error loading projects:', error);
-                updateSyncStatus('offline');
-                loadSampleProjects();
-                showNotification('Using offline mode - ' + error.message, 'error');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        function loadSampleProjects() {
-            projects = [
-                {
-                    ProjectID: 'PROJ-0001',
-                    ProjectName: 'Network Infrastructure Upgrade',
-                    CostCenter: 'Aqua Telecoms',
-                    Supervisor: 'John Smith',
-                    StartDate: '2024-01-15',
-                    OverallProgress: 45,
-                    DailyProgress: 90,
-                    DailyPL: 821.92,
-                    Status: 'in-progress'
-                },
-                {
-                    ProjectID: 'PROJ-0002',
-                    ProjectName: 'Solar Installation Phase 2',
-                    CostCenter: 'Nkanyezi Projects',
-                    Supervisor: 'Sarah Johnson',
-                    StartDate: '2024-02-01',
-                    OverallProgress: 75,
-                    DailyProgress: 110,
-                    DailyPL: 1234.56,
-                    Status: 'on-track'
-                },
-                {
-                    ProjectID: 'PROJ-0003',
-                    ProjectName: 'Fiber Optic Expansion',
-                    CostCenter: 'DI Solutions',
-                    Supervisor: 'Mike Peters',
-                    StartDate: '2024-03-10',
-                    OverallProgress: 30,
-                    DailyProgress: 65,
-                    DailyPL: 543.21,
-                    Status: 'at-risk'
-                }
-            ];
-            renderProjectsTable();
-        }
-
-        function renderProjectsTable() {
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = '';
-            
-            projects.forEach(project => {
-                const row = tableBody.insertRow();
-                
-                let statusClass = 'status-at-risk';
-                let statusText = 'In Progress';
-                if (project.Status === 'on-track') {
-                    statusClass = 'status-on-track';
-                    statusText = 'On Track';
-                } else if (project.Status === 'completed') {
-                    statusClass = 'status-completed';
-                    statusText = 'Completed';
-                } else if (project.Status === 'in-progress') {
-                    statusClass = 'status-at-risk';
-                    statusText = 'In Progress';
-                }
-
-                row.innerHTML = `
-                    <td>${project.ProjectID || 'N/A'}</td>
-                    <td><strong>${project.ProjectName || 'Unnamed'}</strong></td>
-                    <td>${project.CostCenter || 'N/A'}</td>
-                    <td>${project.Supervisor || 'Unassigned'}</td>
-                    <td>${project.StartDate || 'Not set'}</td>
-                    <td>
-                        <div class="progress-cell">
-                            <span>${project.OverallProgress || 0}%</span>
-                            <div class="progress-bar-small">
-                                <div class="progress-fill" style="width: ${project.OverallProgress || 0}%"></div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="progress-cell">
-                            <span>${project.DailyProgress || 0}%</span>
-                            <div class="progress-bar-small">
-                                <div class="progress-fill" style="width: ${project.DailyProgress || 0}%; background: #43e97b;"></div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>${formatZAR(project.DailyPL || 0)}</td>
-                    <td><span class="status-badge ${statusClass}">
-                        <i class="fas ${project.Status === 'on-track' ? 'fa-check-circle' : project.Status === 'completed' ? 'fa-check-double' : 'fa-spinner'}"></i>
-                        ${statusText}
-                    </span></td>
-                    <td>
-                        <div class="action-icons">
-                            <i class="fas fa-eye action-icon" onclick="viewProject('${project.ProjectID}')" title="View"></i>
-                            <i class="fas fa-edit action-icon" onclick="editProject('${project.ProjectID}')" title="Edit"></i>
-                            <i class="fas fa-download action-icon" onclick="exportProject('${project.ProjectID}')" title="Export"></i>
-                            <i class="fas fa-trash action-icon" onclick="deleteProject('${project.ProjectID}')" title="Delete"></i>
-                        </div>
-                    </td>
-                `;
-            });
-        }
-
-        async function saveToSheets() {
-            if (CONFIG.GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
-                showNotification('Please configure Google Script URL first', 'error');
-                return;
-            }
-
-            setLoading(true);
-            try {
-                const selectedChallenges = [];
-                document.querySelectorAll('.challenge-tag.selected').forEach(tag => {
-                    selectedChallenges.push(tag.textContent.trim());
-                });
-
-                const project = {
-                    projectName: document.getElementById('projectName').value,
-                    costCenter: currentCostCenter,
-                    location: document.getElementById('location').value,
-                    supervisor: document.getElementById('supervisor').value,
-                    projectManager: document.getElementById('projectManager').value,
-                    totalInvoiced: document.getElementById('totalInvoiced').value,
-                    totalCosts: document.getElementById('totalCosts').value,
-                    overallTarget: document.getElementById('overallTargetValue').value,
-                    overallMeasure: document.getElementById('overallTargetMeasure').value,
-                    overallProgress: document.getElementById('overallProgress').value,
-                    dailyTarget: document.getElementById('dailyTargetValue').value,
-                    dailyMeasure: document.getElementById('dailyTargetMeasure').value,
-                    actualProgress: document.getElementById('actualProgress').value,
-                    startDate: document.getElementById('startDate').value,
-                    endDate: document.getElementById('endDate').value,
-                    currentDate: document.getElementById('currentDate').value,
-                    comments: document.getElementById('supervisorComments').value,
-                    challenges: selectedChallenges.join(', ')
+                // Define callback
+                window[callbackName] = function(response) {
+                    addDebug(`JSONP response received: ${JSON.stringify(response).substring(0, 200)}`);
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    
+                    if (response && response.success) {
+                        resolve(response);
+                    } else {
+                        reject(new Error(response?.error || 'Unknown error'));
+                    }
                 };
-
-                const formData = new FormData();
-                formData.append('action', 'saveProject');
-                formData.append('project', JSON.stringify(project));
-
-                const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
                 
-                if (data.success) {
-                    showNotification('Project saved to Google Sheets successfully!', 'success');
-                    await loadProjectsFromSheets();
-                } else {
-                    throw new Error(data.error);
-                }
-            } catch (error) {
-                console.error('Error saving to sheets:', error);
-                showNotification('Error saving to Google Sheets: ' + error.message, 'error');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        async function syncWithSheets() {
-            await loadProjectsFromSheets();
-        }
-
-        function updateSyncStatus(status) {
-            const syncStatusEl = document.getElementById('syncStatus');
-            syncStatus = status;
-            
-            if (status === 'online') {
-                syncStatusEl.className = 'sync-status online';
-                syncStatusEl.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Connected to Google Sheets';
-            } else {
-                syncStatusEl.className = 'sync-status offline';
-                syncStatusEl.innerHTML = '<i class="fas fa-cloud-offline"></i> Offline Mode';
-            }
-        }
-
-        function filterProjects() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#tableBody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
+                // Handle errors
+                script.onerror = function(error) {
+                    addDebug(`JSONP script error: ${error}`);
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    
+                    // Fallback to fetch
+                    addDebug('Trying fetch fallback...');
+                    fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            payload: JSON.stringify(payload)
+                        })
+                    }).then(() => {
+                        addDebug('Fetch sent (no-cors mode - cannot read response)');
+                        // With no-cors, we can't read response, so we'll simulate success
+                        resolve({ success: true, async: true });
+                    }).catch(fetchError => {
+                        addDebug(`Fetch error: ${fetchError}`);
+                        reject(fetchError);
+                    });
+                };
+                
+                script.src = url.toString();
+                document.body.appendChild(script);
+                
+                // Timeout
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        addDebug('JSONP timeout');
+                        delete window[callbackName];
+                        document.body.removeChild(script);
+                        reject(new Error('Request timeout'));
+                    }
+                }, 10000);
             });
         }
-
-        function refreshData() {
-            loadProjectsFromSheets();
-            updateMetrics();
-            showNotification('Data refreshed', 'info');
-        }
-
-        function viewProject(projectId) {
-            const project = projects.find(p => p.ProjectID === projectId);
-            if (project) {
-                // Populate form with project data
-                document.getElementById('projectName').value = project.ProjectName || '';
-                document.getElementById('location').value = project.Location || '';
-                document.getElementById('supervisor').value = project.Supervisor || '';
-                document.getElementById('projectManager').value = project.ProjectManager || '';
+        
+        // ============================================
+        // TEST DIRECT CONNECTION
+        // ============================================
+        async function testDirectConnection() {
+            addDebug('Testing direct connection...');
+            showLoading();
+            
+            try {
+                // Try to fetch the URL directly
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
                 
-                showNotification(`Loaded project: ${project.ProjectName}`, 'info');
+                const text = await response.text();
+                addDebug(`Direct fetch response (first 500 chars): ${text.substring(0, 500)}`);
+                
+                if (text.includes('HtmlService') || text.includes('googleusercontent')) {
+                    addDebug('⚠️ Script is not deployed as web app - showing HTML interface');
+                    showStatus('Script needs to be deployed as web app', 'error');
+                } else if (text.includes('doGet') || text.includes('doPost')) {
+                    addDebug('✅ Script appears to be running');
+                }
+                
+            } catch (error) {
+                addDebug(`Direct fetch error: ${error}`);
+            } finally {
+                hideLoading();
             }
         }
-
-        function editProject(projectId) {
-            viewProject(projectId);
-            showNotification('You can now edit the project details', 'info');
-        }
-
-        function deleteProject(projectId) {
-            if (confirm('Are you sure you want to delete this project?')) {
-                projects = projects.filter(p => p.ProjectID !== projectId);
-                renderProjectsTable();
-                showNotification('Project deleted successfully', 'success');
+        
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            addDebug('DOM loaded, initializing...');
+            updateCurrentDate();
+            initializeDropdowns();
+            
+            // Show loading state
+            showLoading();
+            updateConnectionStatus('checking', 'Connecting to Google Sheets...');
+            
+            // Test connection first
+            testDirectConnection().then(() => {
+                // Try to load data
+                setTimeout(function() {
+                    loadProjectsFromSheet();
+                }, 1000);
+            });
+            
+            // Set default active tab
+            const firstNavLink = document.querySelector('.nav-link');
+            if (firstNavLink) {
+                showTab('dashboard', firstNavLink);
+            }
+            
+            // Add event listeners for month inputs
+            document.querySelectorAll('.month-input').forEach(input => {
+                input.addEventListener('input', updateScheduledTotal);
+            });
+        });
+        
+        function updateConnectionStatus(status, message) {
+            const statusElement = document.getElementById('connectionStatus');
+            const detailsElement = document.getElementById('connectionDetails');
+            
+            if (!statusElement || !detailsElement) return;
+            
+            statusElement.className = 'connection-status ';
+            
+            if (status === 'connected') {
+                statusElement.classList.add('status-connected');
+                statusElement.innerHTML = '<i class="fas fa-check-circle me-2"></i> ' + message;
+                detailsElement.innerHTML = '<i class="fas fa-database"></i> Connected to Google Sheets • ' + projects.length + ' projects loaded';
+            } else if (status === 'disconnected') {
+                statusElement.classList.add('status-disconnected');
+                statusElement.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i> ' + message;
+                detailsElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection failed - Check debug panel';
+            } else {
+                statusElement.classList.add('status-checking');
+                statusElement.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i> ' + message;
+                detailsElement.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Establishing connection...';
             }
         }
-
-        function exportProject(projectId) {
-            const project = projects.find(p => p.ProjectID === projectId);
-            if (project) {
-                const dataStr = JSON.stringify(project, null, 2);
-                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        
+        async function loadProjectsFromSheet() {
+            addDebug('Loading projects from Google Sheets...');
+            showLoading();
+            
+            try {
+                const result = await callAppsScript('getProjects');
+                addDebug(`Result received: ${JSON.stringify(result).substring(0, 200)}`);
                 
-                const exportFileDefaultName = `project_${projectId}_${Date.now()}.json`;
+                if (result && result.success) {
+                    if (result.async) {
+                        addDebug('Async mode - waiting for data...');
+                        showStatus('Request sent, waiting for response...', 'info');
+                        
+                        // Try again after a delay
+                        setTimeout(async () => {
+                            try {
+                                const retryResult = await callAppsScript('getProjects');
+                                if (retryResult && retryResult.success && retryResult.data) {
+                                    projects = parseSheetData(retryResult.data);
+                                    filteredProjects = [...projects];
+                                    updateAllViews();
+                                    updateConnectionStatus('connected', 'Connected to Google Sheets');
+                                    showStatus('Data loaded successfully', 'success');
+                                }
+                            } catch (retryError) {
+                                addDebug(`Retry error: ${retryError}`);
+                            }
+                        }, 3000);
+                    } else if (result.data) {
+                        projects = parseSheetData(result.data);
+                        filteredProjects = [...projects];
+                        
+                        addDebug(`Parsed ${projects.length} projects`);
+                        
+                        if (projects.length > 0) {
+                            updateConnectionStatus('connected', 'Connected to Google Sheets');
+                            showStatus(`Loaded ${projects.length} projects from Google Sheets`, 'success');
+                        } else {
+                            updateConnectionStatus('connected', 'Connected to Google Sheets');
+                            showStatus('No projects found in Google Sheets', 'info');
+                        }
+                        
+                        updateAllViews();
+                    }
+                } else {
+                    throw new Error(result?.error || 'Invalid response');
+                }
+            } catch (error) {
+                addDebug(`Error loading projects: ${error}`);
+                updateConnectionStatus('disconnected', 'Failed to load data');
                 
-                const linkElement = document.createElement('a');
-                linkElement.setAttribute('href', dataUri);
-                linkElement.setAttribute('download', exportFileDefaultName);
-                linkElement.click();
+                // Show instructions
+                showStatus('Please check debug panel and ensure script is deployed', 'error');
                 
-                showNotification('Project exported successfully', 'success');
+                projects = [];
+                filteredProjects = [];
+                updateAllViews();
+            } finally {
+                hideLoading();
             }
         }
-
-        function generatePDF() {
-            showNotification('Generating PDF report...', 'info');
-            setTimeout(() => {
-                showNotification('PDF report generated and downloaded', 'success');
-            }, 2000);
+        
+        // Parse sheet data into project objects
+        function parseSheetData(data) {
+            const projects = [];
+            
+            if (!data) return projects;
+            
+            addDebug(`Parsing data of type: ${typeof data}`);
+            
+            // Handle different data formats
+            let rows = [];
+            
+            if (Array.isArray(data)) {
+                rows = data;
+                addDebug(`Data is array with ${rows.length} rows`);
+            } else if (data.values && Array.isArray(data.values)) {
+                rows = data.values;
+                addDebug(`Data has values array with ${rows.length} rows`);
+            } else if (typeof data === 'string') {
+                try {
+                    rows = JSON.parse(data);
+                    addDebug(`Parsed JSON string with ${rows.length} rows`);
+                } catch (e) {
+                    addDebug(`Failed to parse JSON: ${e}`);
+                    return projects;
+                }
+            } else {
+                addDebug(`Unexpected data format: ${Object.keys(data)}`);
+                return projects;
+            }
+            
+            // Find header row
+            let startRow = 1; // Default to row 2 (index 1)
+            for (let i = 0; i < Math.min(5, rows.length); i++) {
+                const row = rows[i];
+                if (row && row.length > 0) {
+                    const firstCell = (row[0] || '').toString().toLowerCase();
+                    if (firstCell.includes('timestamp') || firstCell.includes('date')) {
+                        startRow = i + 1;
+                        addDebug(`Found header at row ${i}, starting data at row ${startRow}`);
+                        break;
+                    }
+                }
+            }
+            
+            // Parse data rows
+            for (let i = startRow; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || row.length < 10) continue;
+                
+                try {
+                    const project = {
+                        category: row[2] || '',
+                        manager: row[3] || '',
+                        project: row[4] || '',
+                        status: row[5] || 'Confirmed',
+                        amount: parseFloat(row[6]) || 0,
+                        margin: parseFloat(row[7]) || 30,
+                        retention: parseFloat(row[8]) || 10,
+                        notes: row[9] || '',
+                        mar26: parseFloat(row[10]) || 0,
+                        apr26: parseFloat(row[11]) || 0,
+                        may26: parseFloat(row[12]) || 0,
+                        jun26: parseFloat(row[13]) || 0,
+                        jul26: parseFloat(row[14]) || 0,
+                        aug26: parseFloat(row[15]) || 0,
+                        sep26: parseFloat(row[16]) || 0,
+                        oct26: parseFloat(row[17]) || 0,
+                        nov26: parseFloat(row[18]) || 0,
+                        dec26: parseFloat(row[19]) || 0,
+                        jan27: parseFloat(row[20]) || 0,
+                        feb27: parseFloat(row[21]) || 0
+                    };
+                    
+                    if (project.category && project.manager && project.project && project.amount > 0) {
+                        projects.push(project);
+                    }
+                } catch (e) {
+                    addDebug(`Error parsing row ${i}: ${e}`);
+                }
+            }
+            
+            addDebug(`Parsed ${projects.length} valid projects`);
+            return projects;
         }
-
+        
+        // ============================================
+        // UPDATE FUNCTIONS
+        // ============================================
+        function updateAllViews() {
+            updateDashboard();
+            updateOrderBook();
+            updateFinancialReport();
+            updateManagerSummary();
+        }
+        
+        function updateCurrentDate() {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').innerHTML = new Date().toLocaleDateString('en-ZA', options);
+            document.getElementById('reportDate').innerHTML = new Date().toLocaleString('en-ZA');
+        }
+        
+        function initializeDropdowns() {
+            // Category filter
+            const catFilter = document.getElementById('categoryFilter');
+            if (catFilter) {
+                catFilter.innerHTML = '<option value="All">All Categories</option>';
+                categories.forEach(c => {
+                    catFilter.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+            }
+            
+            // Manager filter
+            const mgrFilter = document.getElementById('managerFilter');
+            if (mgrFilter) {
+                mgrFilter.innerHTML = '<option value="All">All Managers</option>';
+                managers.forEach(m => {
+                    mgrFilter.innerHTML += `<option value="${m}">${m}</option>`;
+                });
+            }
+            
+            // Manager datalist
+            const mgrList = document.getElementById('managersList');
+            if (mgrList) {
+                mgrList.innerHTML = '';
+                managers.forEach(m => {
+                    mgrList.innerHTML += `<option value="${m}">`;
+                });
+            }
+        }
+        
+        function updateDashboard() {
+            const totalConfirmed = projects.filter(p => p.status === 'Confirmed').reduce((sum, p) => sum + p.amount, 0);
+            const totalForecast = projects.filter(p => p.status === 'Forecast').reduce((sum, p) => sum + p.amount, 0);
+            
+            document.getElementById('totalOrderBook').innerHTML = 'R ' + formatNumber(totalConfirmed + totalForecast);
+            document.getElementById('confirmedTotal').innerHTML = 'R ' + formatNumber(totalConfirmed);
+            document.getElementById('forecastTotal').innerHTML = 'R ' + formatNumber(totalForecast);
+            
+            let totalGP = 0;
+            let totalRevenue = 0;
+            projects.forEach(p => {
+                const margin = p.margin || margins[p.category] || 30;
+                totalGP += p.amount * (margin / 100);
+                totalRevenue += p.amount;
+            });
+            const avgMargin = totalRevenue > 0 ? (totalGP / totalRevenue * 100).toFixed(1) : 0;
+            document.getElementById('grossMargin').innerHTML = avgMargin + '%';
+        }
+        
+        function updateManagerSummary() {
+            const managerData = {};
+            
+            projects.forEach(p => {
+                if (!managerData[p.manager]) {
+                    managerData[p.manager] = {
+                        manager: p.manager,
+                        category: p.category,
+                        confirmed: 0,
+                        forecast: 0,
+                        count: 0
+                    };
+                }
+                if (p.status === 'Confirmed') {
+                    managerData[p.manager].confirmed += p.amount;
+                } else {
+                    managerData[p.manager].forecast += p.amount;
+                }
+                managerData[p.manager].count++;
+            });
+            
+            let html = '';
+            Object.values(managerData).forEach(m => {
+                html += `<tr>
+                    <td><strong>${m.manager}</strong></td>
+                    <td>${m.category}</td>
+                    <td>R ${formatNumber(m.confirmed)}</td>
+                    <td>R ${formatNumber(m.forecast)}</td>
+                    <td>R ${formatNumber(m.confirmed + m.forecast)}</td>
+                    <td>${m.count}</td>
+                </tr>`;
+            });
+            
+            document.getElementById('managerSummaryBody').innerHTML = html || '<tr><td colspan="6" class="text-center">No data available from Google Sheets</td></tr>';
+        }
+        
+        function updateOrderBook() {
+            let html = '';
+            filteredProjects.forEach(p => {
+                const scheduled = (p.mar26 + p.apr26 + p.may26 + p.jun26 + p.jul26 + p.aug26 + p.sep26 + p.oct26 + p.nov26 + p.dec26 + p.jan27 + p.feb27);
+                const variance = p.amount - scheduled;
+                
+                html += `<tr>
+                    <td>${p.category}</td>
+                    <td><strong>${p.manager}</strong></td>
+                    <td>${p.project}</td>
+                    <td><span class="badge-${p.status.toLowerCase()}">${p.status}</span></td>
+                    <td>R ${formatNumber(p.amount)}</td>
+                    <td>${p.mar26 ? 'R ' + formatNumber(p.mar26) : '-'}</td>
+                    <td>${p.apr26 ? 'R ' + formatNumber(p.apr26) : '-'}</td>
+                    <td>${p.may26 ? 'R ' + formatNumber(p.may26) : '-'}</td>
+                    <td>${p.jun26 ? 'R ' + formatNumber(p.jun26) : '-'}</td>
+                    <td>${p.jul26 ? 'R ' + formatNumber(p.jul26) : '-'}</td>
+                    <td>${p.aug26 ? 'R ' + formatNumber(p.aug26) : '-'}</td>
+                    <td>${p.sep26 ? 'R ' + formatNumber(p.sep26) : '-'}</td>
+                    <td>${p.oct26 ? 'R ' + formatNumber(p.oct26) : '-'}</td>
+                    <td>${p.nov26 ? 'R ' + formatNumber(p.nov26) : '-'}</td>
+                    <td>${p.dec26 ? 'R ' + formatNumber(p.dec26) : '-'}</td>
+                    <td>${p.jan27 ? 'R ' + formatNumber(p.jan27) : '-'}</td>
+                    <td>${p.feb27 ? 'R ' + formatNumber(p.feb27) : '-'}</td>
+                    <td>R ${formatNumber(scheduled)}</td>
+                    <td class="${variance < 0 ? 'text-danger' : 'text-success'}">R ${formatNumber(variance)}</td>
+                </tr>`;
+            });
+            
+            document.getElementById('orderBookBody').innerHTML = html || '<tr><td colspan="19" class="text-center">No data available from Google Sheets</td></tr>';
+        }
+        
+        function updateFinancialReport() {
+            let html = '';
+            let totalAmount = 0;
+            let totalScheduled = 0;
+            let monthlyTotals = [0,0,0,0,0,0,0,0,0,0,0,0];
+            
+            projects.forEach(p => {
+                const scheduled = (p.mar26 + p.apr26 + p.may26 + p.jun26 + p.jul26 + p.aug26 + p.sep26 + p.oct26 + p.nov26 + p.dec26 + p.jan27 + p.feb27);
+                totalAmount += p.amount;
+                totalScheduled += scheduled;
+                
+                monthlyTotals[0] += p.mar26;
+                monthlyTotals[1] += p.apr26;
+                monthlyTotals[2] += p.may26;
+                monthlyTotals[3] += p.jun26;
+                monthlyTotals[4] += p.jul26;
+                monthlyTotals[5] += p.aug26;
+                monthlyTotals[6] += p.sep26;
+                monthlyTotals[7] += p.oct26;
+                monthlyTotals[8] += p.nov26;
+                monthlyTotals[9] += p.dec26;
+                monthlyTotals[10] += p.jan27;
+                monthlyTotals[11] += p.feb27;
+                
+                const variance = p.amount - scheduled;
+                
+                html += `<tr>
+                    <td>${p.category}</td>
+                    <td>${p.manager}</td>
+                    <td>${p.project}</td>
+                    <td>${p.status}</td>
+                    <td class="text-end">R ${formatNumber(p.amount)}</td>
+                    <td class="text-end">${p.mar26 ? 'R ' + formatNumber(p.mar26) : '-'}</td>
+                    <td class="text-end">${p.apr26 ? 'R ' + formatNumber(p.apr26) : '-'}</td>
+                    <td class="text-end">${p.may26 ? 'R ' + formatNumber(p.may26) : '-'}</td>
+                    <td class="text-end">${p.jun26 ? 'R ' + formatNumber(p.jun26) : '-'}</td>
+                    <td class="text-end">${p.jul26 ? 'R ' + formatNumber(p.jul26) : '-'}</td>
+                    <td class="text-end">${p.aug26 ? 'R ' + formatNumber(p.aug26) : '-'}</td>
+                    <td class="text-end">${p.sep26 ? 'R ' + formatNumber(p.sep26) : '-'}</td>
+                    <td class="text-end">${p.oct26 ? 'R ' + formatNumber(p.oct26) : '-'}</td>
+                    <td class="text-end">${p.nov26 ? 'R ' + formatNumber(p.nov26) : '-'}</td>
+                    <td class="text-end">${p.dec26 ? 'R ' + formatNumber(p.dec26) : '-'}</td>
+                    <td class="text-end">${p.jan27 ? 'R ' + formatNumber(p.jan27) : '-'}</td>
+                    <td class="text-end">${p.feb27 ? 'R ' + formatNumber(p.feb27) : '-'}</td>
+                    <td class="text-end"><strong>R ${formatNumber(scheduled)}</strong></td>
+                    <td class="text-end ${variance < 0 ? 'text-danger' : 'text-success'}">R ${formatNumber(variance)}</td>
+                </tr>`;
+            });
+            
+            document.getElementById('financialReportBody').innerHTML = html || '<tr><td colspan="19" class="text-center">No data available from Google Sheets</td></tr>';
+            
+            if (projects.length > 0) {
+                const footer = `<tr style="background: #e9ecef; font-weight: bold;">
+                    <td colspan="4"><strong>TOTAL</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(totalAmount)}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[0])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[1])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[2])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[3])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[4])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[5])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[6])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[7])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[8])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[9])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[10])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(monthlyTotals[11])}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(totalScheduled)}</strong></td>
+                    <td class="text-end"><strong>R ${formatNumber(totalAmount - totalScheduled)}</strong></td>
+                </tr>`;
+                document.getElementById('financialReportFooter').innerHTML = footer;
+            } else {
+                document.getElementById('financialReportFooter').innerHTML = '';
+            }
+            
+            const confirmed = projects.filter(p => p.status === 'Confirmed').reduce((sum, p) => sum + p.amount, 0);
+            const forecast = projects.filter(p => p.status === 'Forecast').reduce((sum, p) => sum + p.amount, 0);
+            
+            document.getElementById('reportTotalOrderBook').innerHTML = 'R ' + formatNumber(totalAmount);
+            document.getElementById('reportConfirmed').innerHTML = 'R ' + formatNumber(confirmed);
+            document.getElementById('reportForecast').innerHTML = 'R ' + formatNumber(forecast);
+            
+            updateSectorRevenue();
+        }
+        
+        function updateSectorRevenue() {
+            let sectorHtml = '';
+            let sectorProfitHtml = '';
+            
+            categories.forEach(cat => {
+                const catProjects = projects.filter(p => p.category === cat);
+                const revenue = catProjects.reduce((sum, p) => sum + p.amount, 0);
+                const margin = margins[cat] || 30;
+                const gp = revenue * (margin / 100);
+                
+                if (revenue > 0) {
+                    sectorHtml += `<tr>
+                        <td>${cat}</td>
+                        <td class="text-end">R ${formatNumber(revenue)}</td>
+                        <td class="text-end">${margin}%</td>
+                        <td class="text-end">R ${formatNumber(gp)}</td>
+                    </tr>`;
+                    
+                    sectorProfitHtml += `<div class="sector-card ${cat.toLowerCase().replace(' ', '')}">
+                        <div style="font-weight:600;">${cat}</div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <span>Revenue:</span>
+                            <strong>R ${formatNumber(revenue)}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>GP (${margin}%):</span>
+                            <strong class="text-success">R ${formatNumber(gp)}</strong>
+                        </div>
+                    </div>`;
+                }
+            });
+            
+            document.getElementById('sectorRevenueBody').innerHTML = sectorHtml || '<tr><td colspan="4" class="text-center">No data available</td></tr>';
+            document.getElementById('sectorProfitGrid').innerHTML = sectorProfitHtml || '<p class="text-muted">No data available</p>';
+        }
+        
+        // ============================================
+        // FILTER FUNCTIONS
+        // ============================================
+        function applyFilters() {
+            const category = document.getElementById('categoryFilter').value;
+            const manager = document.getElementById('managerFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            
+            filteredProjects = projects.filter(p => {
+                if (category !== 'All' && p.category !== category) return false;
+                if (manager !== 'All' && p.manager !== manager) return false;
+                if (status !== 'All' && p.status !== status) return false;
+                return true;
+            });
+            
+            updateOrderBook();
+            showStatus('Filters applied', 'success');
+        }
+        
+        // ============================================
+        // DATA ENTRY FUNCTIONS
+        // ============================================
+        function distributeEvenly() {
+            const total = parseFloat(document.getElementById('totalAmount').value) || 0;
+            const monthly = Math.round(total / 12);
+            
+            document.getElementById('mar26').value = monthly;
+            document.getElementById('apr26').value = monthly;
+            document.getElementById('may26').value = monthly;
+            document.getElementById('jun26').value = monthly;
+            document.getElementById('jul26').value = monthly;
+            document.getElementById('aug26').value = monthly;
+            document.getElementById('sep26').value = monthly;
+            document.getElementById('oct26').value = monthly;
+            document.getElementById('nov26').value = monthly;
+            document.getElementById('dec26').value = monthly;
+            document.getElementById('jan27').value = monthly;
+            document.getElementById('feb27').value = monthly;
+            
+            updateScheduledTotal();
+        }
+        
+        function updateScheduledTotal() {
+            const months = ['mar26','apr26','may26','jun26','jul26','aug26','sep26','oct26','nov26','dec26','jan27','feb27'];
+            let total = 0;
+            months.forEach(m => total += parseFloat(document.getElementById(m).value) || 0);
+            document.getElementById('scheduledTotal').innerHTML = formatNumber(total);
+        }
+        
+        async function submitProject() {
+            const required = ['projectCategory', 'projectManager', 'projectName', 'totalAmount'];
+            for (let field of required) {
+                const element = document.getElementById(field);
+                if (!element || !element.value) {
+                    showStatus('Please fill in all required fields', 'error');
+                    if (element) element.focus();
+                    return;
+                }
+            }
+            
+            const project = {
+                category: document.getElementById('projectCategory').value,
+                manager: document.getElementById('projectManager').value,
+                project: document.getElementById('projectName').value,
+                status: document.getElementById('projectStatus').value,
+                amount: parseFloat(document.getElementById('totalAmount').value),
+                margin: parseFloat(document.getElementById('margin').value) || 30,
+                retention: parseFloat(document.getElementById('retention').value) || 10,
+                notes: document.getElementById('projectNotes').value || '',
+                mar26: parseFloat(document.getElementById('mar26').value) || 0,
+                apr26: parseFloat(document.getElementById('apr26').value) || 0,
+                may26: parseFloat(document.getElementById('may26').value) || 0,
+                jun26: parseFloat(document.getElementById('jun26').value) || 0,
+                jul26: parseFloat(document.getElementById('jul26').value) || 0,
+                aug26: parseFloat(document.getElementById('aug26').value) || 0,
+                sep26: parseFloat(document.getElementById('sep26').value) || 0,
+                oct26: parseFloat(document.getElementById('oct26').value) || 0,
+                nov26: parseFloat(document.getElementById('nov26').value) || 0,
+                dec26: parseFloat(document.getElementById('dec26').value) || 0,
+                jan27: parseFloat(document.getElementById('jan27').value) || 0,
+                feb27: parseFloat(document.getElementById('feb27').value) || 0
+            };
+            
+            addDebug(`Submitting project: ${project.project}`);
+            showLoading();
+            
+            try {
+                const result = await callAppsScript('submitProject', project);
+                addDebug(`Submit result: ${JSON.stringify(result)}`);
+                
+                showStatus('Project saved! Refreshing data...', 'success');
+                
+                // Reload data
+                setTimeout(async () => {
+                    await loadProjectsFromSheet();
+                    resetForm();
+                }, 2000);
+                
+            } catch (error) {
+                addDebug(`Submit error: ${error}`);
+                showStatus('Failed to save: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        function resetForm() {
+            document.getElementById('projectForm').reset();
+            document.querySelectorAll('.month-input').forEach(i => i.value = 0);
+            document.getElementById('margin').value = 30;
+            document.getElementById('retention').value = 10;
+            updateScheduledTotal();
+        }
+        
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function formatNumber(num) {
+            if (!num && num !== 0) return '0';
+            return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        function showStatus(message, type) {
+            const existing = document.querySelector('.status-message');
+            if (existing) existing.remove();
+            
+            const status = document.createElement('div');
+            status.className = `status-message status-${type}`;
+            status.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            document.body.appendChild(status);
+            
+            setTimeout(() => status.remove(), 5000);
+        }
+        
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+        
+        function showTab(tabName, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.getElementById(tabName).style.display = 'block';
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            if (element) {
+                element.classList.add('active');
+            }
+        }
+        
         function exportToExcel() {
-            showNotification('Exporting to Excel...', 'info');
-            setTimeout(() => {
-                showNotification('Excel file generated and downloaded', 'success');
-            }, 2000);
-        }
-
-        // Clean up on page unload
-        window.onunload = function() {
-            if (autoSyncInterval) {
-                clearInterval(autoSyncInterval);
+            if (projects.length === 0) {
+                showStatus('No data to export', 'error');
+                return;
             }
-        };
+            
+            let csv = "Category,Project Manager,Project,Status,Amount,Mar-26,Apr-26,May-26,Jun-26,Jul-26,Aug-26,Sep-26,Oct-26,Nov-26,Dec-26,Jan-27,Feb-27,Total,Check\n";
+            
+            projects.forEach(p => {
+                const scheduled = (p.mar26 + p.apr26 + p.may26 + p.jun26 + p.jul26 + p.aug26 + p.sep26 + p.oct26 + p.nov26 + p.dec26 + p.jan27 + p.feb27);
+                const variance = p.amount - scheduled;
+                
+                csv += `${p.category},${p.manager},${p.project},${p.status},${p.amount},${p.mar26},${p.apr26},${p.may26},${p.jun26},${p.jul26},${p.aug26},${p.sep26},${p.oct26},${p.nov26},${p.dec26},${p.jan27},${p.feb27},${scheduled},${variance}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Onpoint_Group_Report_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
