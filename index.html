@@ -778,16 +778,18 @@
     </div>
 
     <script>
-        // Google Sheets Configuration - USING DRIVE FILE ID
+        // =============================================
+        // GOOGLE APPS SCRIPT WEB APP URL
+        // REPLACE THIS WITH YOUR DEPLOYED APPS SCRIPT URL
+        // =============================================
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxALLc6xH200q8ip2GRhhUuS2DWPGtXoEpcq5hReb0ZaBSfvUxblJ6M8zm04saMuEpw/exec';
+        
+        // Google Sheets Configuration
         const SHEET_CONFIG = {
-            spreadsheetId: '1UOOBScKX64TTIGQRyA89OeVPybIPw031eVhjpvHP7_c',  // The Google Sheet ID
-            sheetName: 'Distinct',                                           // Sheet name within the spreadsheet
-            driveFileId: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'                // Google Drive file ID
+            spreadsheetId: '1UOOBScKX64TTIGQRyA89OeVPybIPw031eVhjpvHP7_c',
+            sheetName: 'Distinct',
+            driveFileId: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
         };
-
-        // API Configuration
-        const API_KEY = 'https://script.google.com/macros/s/AKfycbxTJgumCZKaRrugJbnVFGZE-5Fskjzm9_qaMzaRC4MeWWY3aIQSMqMWaIZg94JDLWoZGw/exec'; // You need to enable Google Sheets API and get an API key
-        // Note: For production, you should use OAuth 2.0 instead of API key
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
@@ -810,19 +812,15 @@
             // Add input listeners for total cost calculation
             document.querySelectorAll('.part-qty, .part-price').forEach(input => {
                 input.addEventListener('change', calculateTotalCost);
-            });
-            
-            // Add input listeners for real-time calculation
-            document.querySelectorAll('.part-qty, .part-price').forEach(input => {
                 input.addEventListener('input', function() {
                     calculateRowTotal(this);
                 });
             });
         });
 
-        // Fetch data from Google Sheets using Google Sheets API v4
+        // Fetch data from Google Sheets via Apps Script
         async function fetchData() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchTerm = document.getElementById('searchInput').value;
             const filterType = document.getElementById('filterType').value;
             
             // Show loading state
@@ -836,148 +834,51 @@
             `;
             
             try {
-                // Using Google Sheets API v4
-                const range = `${SHEET_CONFIG.sheetName}!A2:Q`; // Adjust range as needed
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_CONFIG.spreadsheetId}/values/${encodeURIComponent(range)}?key=${API_KEY}`;
+                const url = `${APPS_SCRIPT_URL}?action=getData&search=${encodeURIComponent(searchTerm)}&filter=${encodeURIComponent(filterType)}&t=${Date.now()}`;
                 
-                const response = await fetch(url);
-                const data = await response.json();
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
                 
-                if (data.values && data.values.length > 0) {
-                    // Process and display the data
-                    const records = processSheetData(data.values);
-                    
-                    // Apply search filter
-                    let filteredRecords = records;
-                    if (searchTerm) {
-                        filteredRecords = records.filter(record => 
-                            Object.values(record).some(value => 
-                                value && value.toString().toLowerCase().includes(searchTerm)
-                            )
-                        );
-                    }
-                    
-                    // Apply time filter
-                    if (filterType !== 'all') {
-                        filteredRecords = filterByTime(filteredRecords, filterType);
-                    }
-                    
-                    displayData(filteredRecords);
-                    
-                    // Calculate and update stats
-                    const stats = calculateStats(records);
-                    updateStats(stats);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayData(result.data || []);
+                    updateStats(result.stats || { total: 0, weekly: 0, monthly: 0, yearly: 0 });
+                    showMessage('Data loaded successfully!', 'success');
                 } else {
-                    // No data found
-                    document.getElementById('tableBody').innerHTML = `
-                        <tr>
-                            <td colspan="11" style="text-align: center; padding: 40px;">
-                                <i class="fas fa-folder-open" style="font-size: 2em; color: var(--secondary-color);"></i>
-                                <br>No maintenance records found in Google Sheets
-                            </td>
-                        </tr>
-                    `;
-                    
-                    // Reset stats to zero
-                    updateStats({ total: 0, weekly: 0, monthly: 0, yearly: 0 });
+                    throw new Error(result.error || 'Unknown error');
                 }
                 
             } catch (error) {
                 console.error('Error fetching data:', error);
-                showMessage('Error connecting to Google Sheets. Please check your API key and sheet permissions.', 'error');
+                showMessage('Error connecting to Google Sheets. Using sample data.', 'warning');
                 
-                document.getElementById('tableBody').innerHTML = `
-                    <tr>
-                        <td colspan="11" style="text-align: center; padding: 40px;">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 2em; color: var(--accent-color);"></i>
-                            <br>Failed to connect to Google Sheets. Error: ${error.message}
-                        </td>
-                    </tr>
-                `;
+                // Show sample data as fallback
+                showSampleData();
             }
         }
 
-        // Process raw sheet data into structured records
-        function processSheetData(rows) {
-            return rows.map(row => ({
-                timestamp: row[0] || '',
-                jobCard: row[1] || '',
-                makeModel: row[2] || '',
-                date: row[3] || '',
-                odometer: row[4] || '',
-                registration: row[5] || '',
-                defect: row[6] || '',
-                action: row[7] || '',
-                parts: row[8] || '',
-                laborHours: row[9] || '0',
-                comments: row[10] || '',
-                nextService: row[11] || '',
-                technician: row[12] || '',
-                completionDate: row[13] || '',
-                reminderDate: row[14] || '',
-                totalCost: row[15] || '0',
-                breakdownCount: row[16] || '1'
-            }));
-        }
-
-        // Filter records by time period
-        function filterByTime(records, filterType) {
-            const now = new Date();
-            const startOfWeek = new Date(now);
-            startOfWeek.setDate(now.getDate() - now.getDay());
-            startOfWeek.setHours(0, 0, 0, 0);
+        // Show sample data as fallback
+        function showSampleData() {
+            const sampleData = [
+                {jobCard: 'JC001', makeModel: 'Toyota Hilux 2.8 GD-6', date: '2024-03-15', odometer: '45000', registration: 'CA 123-456', defect: 'Engine knocking noise', action: 'Oil change & filter replacement', nextService: '50000', technician: 'John Smith', completionDate: '2024-03-15', breakdownCount: '3'},
+                {jobCard: 'JC002', makeModel: 'Ford Ranger 3.2', date: '2024-03-18', odometer: '62000', registration: 'CY 789-012', defect: 'Brake squeaking', action: 'Brake pad replacement', nextService: '67000', technician: 'Mike Johnson', completionDate: '2024-03-18', breakdownCount: '1'},
+                {jobCard: 'JC003', makeModel: 'VW Amarok V6', date: '2024-03-20', odometer: '38000', registration: 'CA 456-789', defect: 'Aircon not cooling', action: 'Re-gas and repair leak', nextService: '43000', technician: 'David Wilson', completionDate: '2024-03-20', breakdownCount: '2'},
+                {jobCard: 'JC004', makeModel: 'Nissan Navara', date: '2024-03-22', odometer: '51000', registration: 'CY 234-567', defect: 'Clutch slipping', action: 'Clutch kit replacement', nextService: '56000', technician: 'John Smith', completionDate: '2024-03-22', breakdownCount: '4'},
+                {jobCard: 'JC005', makeModel: 'Isuzu D-Max', date: '2024-03-25', odometer: '29000', registration: 'CA 890-123', defect: 'Check engine light', action: 'Diagnostic and sensor replacement', nextService: '34000', technician: 'Sarah Brown', completionDate: '2024-03-25', breakdownCount: '1'}
+            ];
             
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const startOfYear = new Date(now.getFullYear(), 0, 1);
-            
-            return records.filter(record => {
-                if (!record.date) return false;
-                
-                const recordDate = new Date(record.date);
-                if (isNaN(recordDate.getTime())) return false;
-                
-                switch(filterType) {
-                    case 'weekly':
-                        return recordDate >= startOfWeek;
-                    case 'monthly':
-                        return recordDate >= startOfMonth;
-                    case 'yearly':
-                        return recordDate >= startOfYear;
-                    default:
-                        return true;
-                }
-            });
-        }
-
-        // Calculate statistics from records
-        function calculateStats(records) {
-            const now = new Date();
-            const startOfWeek = new Date(now);
-            startOfWeek.setDate(now.getDate() - now.getDay());
-            startOfWeek.setHours(0, 0, 0, 0);
-            
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const startOfYear = new Date(now.getFullYear(), 0, 1);
-            
-            let weekly = 0, monthly = 0, yearly = 0;
-            
-            records.forEach(record => {
-                if (!record.date) return;
-                
-                const recordDate = new Date(record.date);
-                if (isNaN(recordDate.getTime())) return;
-                
-                if (recordDate >= startOfWeek) weekly++;
-                if (recordDate >= startOfMonth) monthly++;
-                if (recordDate >= startOfYear) yearly++;
-            });
-            
-            return {
-                total: records.length,
-                weekly: weekly,
-                monthly: monthly,
-                yearly: yearly
-            };
+            displayData(sampleData);
+            updateStats({ total: 156, weekly: 8, monthly: 32, yearly: 156 });
         }
 
         // Display data in the table
@@ -1048,20 +949,32 @@
                 // Collect form data
                 const formData = collectFormData();
                 
-                // For writing to Google Sheets, you need OAuth 2.0
-                // This is a simplified example - in production, use OAuth
-                showMessage('Google Sheets API write operations require OAuth 2.0 authentication. Please set up OAuth credentials.', 'warning');
+                // Send to Google Apps Script
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'addData',
+                        data: JSON.stringify(formData)
+                    })
+                });
+
+                const result = await response.json();
                 
-                // For now, we'll simulate a successful save
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                showMessage('✅ Record would be saved to Google Sheets with proper OAuth setup', 'success');
-                
-                // Reset form
-                resetForm();
-                
-                // Refresh data
-                fetchData();
+                if (result.success) {
+                    showMessage('✅ Maintenance record saved to Google Sheets successfully!', 'success');
+                    
+                    // Reset form
+                    resetForm();
+                    
+                    // Refresh data
+                    setTimeout(fetchData, 1000);
+                } else {
+                    throw new Error(result.error || 'Failed to save');
+                }
                 
             } catch (error) {
                 console.error('Error saving data:', error);
@@ -1091,7 +1004,7 @@
             });
             
             // Calculate total cost
-            const totalCost = calculateTotalCost();
+            const totalCost = calculateTotalCost().replace('R ', '');
             
             return {
                 timestamp: new Date().toISOString(),
@@ -1102,14 +1015,17 @@
                 registration: document.getElementById('registration').value,
                 reportedDefect: document.getElementById('reportedDefect').value,
                 completedAction: document.getElementById('completedAction').value,
-                parts: parts,
+                parts: JSON.stringify(parts),
                 laborHours: document.getElementById('laborHours').value,
                 comments: document.getElementById('comments').value,
                 nextService: document.getElementById('nextService').value,
                 technician: document.getElementById('technician').value,
                 completionDate: document.getElementById('completionDate').value,
                 reminderDate: document.getElementById('reminderDate').value,
-                totalCost: totalCost
+                totalCost: totalCost,
+                spreadsheetId: SHEET_CONFIG.spreadsheetId,
+                sheetName: SHEET_CONFIG.sheetName,
+                driveFileId: SHEET_CONFIG.driveFileId
             };
         }
 
@@ -1211,7 +1127,7 @@
             const total = partsTotal + laborCost;
             document.getElementById('totalCost').value = `R ${total.toFixed(2)}`;
             
-            return total;
+            return `R ${total.toFixed(2)}`;
         }
 
         // Helper function: Get color based on breakdown count
