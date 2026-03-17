@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* All your existing CSS remains exactly the same */
         * {
             margin: 0;
             padding: 0;
@@ -39,7 +40,6 @@
             padding: 20px;
         }
 
-        /* Header Styles */
         header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -86,7 +86,6 @@
             margin-right: 8px;
         }
 
-        /* Dashboard Styles */
         .dashboard, .maintenance-form {
             background: white;
             padding: 30px;
@@ -124,7 +123,6 @@
             color: var(--secondary-color);
         }
 
-        /* Search and Filter */
         .search-filter {
             display: flex;
             gap: 15px;
@@ -188,7 +186,6 @@
             box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
         }
 
-        /* Stats Cards */
         .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -233,7 +230,6 @@
             line-height: 1.2;
         }
 
-        /* Table Styles */
         .table-container {
             overflow-x: auto;
             margin-top: 20px;
@@ -270,7 +266,6 @@
             border-bottom: none;
         }
 
-        /* Form Styles */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -323,7 +318,6 @@
             min-height: 80px;
         }
 
-        /* Parts Section */
         .parts-section {
             margin: 25px 0;
             background: #f8f9fa;
@@ -396,7 +390,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        /* Form Actions */
         .form-actions {
             margin-top: 35px;
             text-align: center;
@@ -423,7 +416,6 @@
             box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
         }
 
-        /* Message Styles */
         .success-message, .error-message, .warning-message {
             position: fixed;
             top: 30px;
@@ -464,7 +456,6 @@
             }
         }
 
-        /* Loading Spinner */
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -479,7 +470,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Required Field Indicator */
         .required::after {
             content: "*";
             color: var(--accent-color);
@@ -487,7 +477,6 @@
             font-weight: bold;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .logo-container {
                 flex-direction: column;
@@ -528,7 +517,6 @@
             }
         }
 
-        /* Print Styles */
         @media print {
             .search-filter, .maintenance-form, .btn-primary, .btn-submit {
                 display: none;
@@ -540,7 +528,6 @@
             }
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 10px;
             height: 10px;
@@ -653,7 +640,7 @@
                         <tr>
                             <td colspan="11" style="text-align: center; padding: 40px;">
                                 <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: var(--secondary-color);"></i>
-                                <br>Loading data...
+                                <br>Loading data from Google Sheets...
                             </td>
                         </tr>
                     </tbody>
@@ -791,16 +778,17 @@
     </div>
 
     <script>
-        // Google Sheets Configuration
+        // Google Sheets Configuration - USING DRIVE FILE ID
         const SHEET_CONFIG = {
-            sheetId: '1UOOBScKX64TTIGQRyA89OeVPybIPw031eVhjpvHP7_c',
-            sheetName: 'Distinct',
-            driveId: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
+            spreadsheetId: '1UOOBScKX64TTIGQRyA89OeVPybIPw031eVhjpvHP7_c',  // The Google Sheet ID
+            sheetName: 'Distinct',                                           // Sheet name within the spreadsheet
+            driveFileId: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'                // Google Drive file ID
         };
-        
-        // Google Apps Script Web App URL - REPLACE WITH YOUR DEPLOYED URL
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKphdOSVczE2HBwdzI-Mzn92y6sVmXju3HT6Ix2FDJxbomhK-t3RJa4PeZogjMMODChw/exec';
-        
+
+        // API Configuration
+        const API_KEY = 'YOUR_GOOGLE_API_KEY'; // You need to enable Google Sheets API and get an API key
+        // Note: For production, you should use OAuth 2.0 instead of API key
+
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
             // Set today's date as default
@@ -813,7 +801,7 @@
             reminderDate.setDate(reminderDate.getDate() + 30);
             document.getElementById('reminderDate').value = reminderDate.toISOString().split('T')[0];
             
-            // Load existing data
+            // Load existing data from Google Sheets
             fetchData();
             
             // Form submission handler
@@ -823,11 +811,18 @@
             document.querySelectorAll('.part-qty, .part-price').forEach(input => {
                 input.addEventListener('change', calculateTotalCost);
             });
+            
+            // Add input listeners for real-time calculation
+            document.querySelectorAll('.part-qty, .part-price').forEach(input => {
+                input.addEventListener('input', function() {
+                    calculateRowTotal(this);
+                });
+            });
         });
 
-        // Fetch data from Google Sheets
+        // Fetch data from Google Sheets using Google Sheets API v4
         async function fetchData() {
-            const searchTerm = document.getElementById('searchInput').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const filterType = document.getElementById('filterType').value;
             
             // Show loading state
@@ -841,114 +836,250 @@
             `;
             
             try {
-                // For demo purposes, using sample data
-                // In production, this would fetch from Google Sheets with the config
-                console.log('Fetching data from sheet:', SHEET_CONFIG.sheetName, 'with ID:', SHEET_CONFIG.sheetId);
+                // Using Google Sheets API v4
+                const range = `${SHEET_CONFIG.sheetName}!A2:Q`; // Adjust range as needed
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_CONFIG.spreadsheetId}/values/${encodeURIComponent(range)}?key=${API_KEY}`;
                 
-                setTimeout(() => {
-                    displaySampleData();
-                    updateStats();
-                }, 1000);
-                
-                /* Uncomment for actual Google Sheets integration
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'read',
-                        sheetId: SHEET_CONFIG.sheetId,
-                        sheetName: SHEET_CONFIG.sheetName,
-                        driveId: SHEET_CONFIG.driveId,
-                        search: searchTerm,
-                        filter: filterType
-                    })
-                });
-                
+                const response = await fetch(url);
                 const data = await response.json();
-                if (data.status === 'success') {
-                    displayData(data.data, data.headers);
-                    updateStatsFromData(data.stats);
+                
+                if (data.values && data.values.length > 0) {
+                    // Process and display the data
+                    const records = processSheetData(data.values);
+                    
+                    // Apply search filter
+                    let filteredRecords = records;
+                    if (searchTerm) {
+                        filteredRecords = records.filter(record => 
+                            Object.values(record).some(value => 
+                                value && value.toString().toLowerCase().includes(searchTerm)
+                            )
+                        );
+                    }
+                    
+                    // Apply time filter
+                    if (filterType !== 'all') {
+                        filteredRecords = filterByTime(filteredRecords, filterType);
+                    }
+                    
+                    displayData(filteredRecords);
+                    
+                    // Calculate and update stats
+                    const stats = calculateStats(records);
+                    updateStats(stats);
+                } else {
+                    // No data found
+                    document.getElementById('tableBody').innerHTML = `
+                        <tr>
+                            <td colspan="11" style="text-align: center; padding: 40px;">
+                                <i class="fas fa-folder-open" style="font-size: 2em; color: var(--secondary-color);"></i>
+                                <br>No maintenance records found in Google Sheets
+                            </td>
+                        </tr>
+                    `;
+                    
+                    // Reset stats to zero
+                    updateStats({ total: 0, weekly: 0, monthly: 0, yearly: 0 });
                 }
-                */
                 
             } catch (error) {
                 console.error('Error fetching data:', error);
-                showMessage('Error loading data from Google Sheets. Using sample data.', 'warning');
-                displaySampleData();
-                updateStats();
+                showMessage('Error connecting to Google Sheets. Please check your API key and sheet permissions.', 'error');
+                
+                document.getElementById('tableBody').innerHTML = `
+                    <tr>
+                        <td colspan="11" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2em; color: var(--accent-color);"></i>
+                            <br>Failed to connect to Google Sheets. Error: ${error.message}
+                        </td>
+                    </tr>
+                `;
             }
         }
 
-        // Display sample data
-        function displaySampleData() {
-            const sampleData = [
-                {jobCard: 'JC001', makeModel: 'Toyota Hilux 2.8 GD-6', date: '2024-03-15', odometer: '45000', registration: 'CA 123-456', defect: 'Engine knocking noise', action: 'Oil change & filter replacement', nextService: '50000', technician: 'John Smith', completionDate: '2024-03-15', breakdownCount: '3'},
-                {jobCard: 'JC002', makeModel: 'Ford Ranger 3.2', date: '2024-03-18', odometer: '62000', registration: 'CY 789-012', defect: 'Brake squeaking', action: 'Brake pad replacement', nextService: '67000', technician: 'Mike Johnson', completionDate: '2024-03-18', breakdownCount: '1'},
-                {jobCard: 'JC003', makeModel: 'VW Amarok V6', date: '2024-03-20', odometer: '38000', registration: 'CA 456-789', defect: 'Aircon not cooling', action: 'Re-gas and repair leak', nextService: '43000', technician: 'David Wilson', completionDate: '2024-03-20', breakdownCount: '2'},
-                {jobCard: 'JC004', makeModel: 'Nissan Navara', date: '2024-03-22', odometer: '51000', registration: 'CY 234-567', defect: 'Clutch slipping', action: 'Clutch kit replacement', nextService: '56000', technician: 'John Smith', completionDate: '2024-03-22', breakdownCount: '4'},
-                {jobCard: 'JC005', makeModel: 'Isuzu D-Max', date: '2024-03-25', odometer: '29000', registration: 'CA 890-123', defect: 'Check engine light', action: 'Diagnostic and sensor replacement', nextService: '34000', technician: 'Sarah Brown', completionDate: '2024-03-25', breakdownCount: '1'}
-            ];
+        // Process raw sheet data into structured records
+        function processSheetData(rows) {
+            return rows.map(row => ({
+                timestamp: row[0] || '',
+                jobCard: row[1] || '',
+                makeModel: row[2] || '',
+                date: row[3] || '',
+                odometer: row[4] || '',
+                registration: row[5] || '',
+                defect: row[6] || '',
+                action: row[7] || '',
+                parts: row[8] || '',
+                laborHours: row[9] || '0',
+                comments: row[10] || '',
+                nextService: row[11] || '',
+                technician: row[12] || '',
+                completionDate: row[13] || '',
+                reminderDate: row[14] || '',
+                totalCost: row[15] || '0',
+                breakdownCount: row[16] || '1'
+            }));
+        }
+
+        // Filter records by time period
+        function filterByTime(records, filterType) {
+            const now = new Date();
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
             
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            
+            return records.filter(record => {
+                if (!record.date) return false;
+                
+                const recordDate = new Date(record.date);
+                if (isNaN(recordDate.getTime())) return false;
+                
+                switch(filterType) {
+                    case 'weekly':
+                        return recordDate >= startOfWeek;
+                    case 'monthly':
+                        return recordDate >= startOfMonth;
+                    case 'yearly':
+                        return recordDate >= startOfYear;
+                    default:
+                        return true;
+                }
+            });
+        }
+
+        // Calculate statistics from records
+        function calculateStats(records) {
+            const now = new Date();
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+            
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            
+            let weekly = 0, monthly = 0, yearly = 0;
+            
+            records.forEach(record => {
+                if (!record.date) return;
+                
+                const recordDate = new Date(record.date);
+                if (isNaN(recordDate.getTime())) return;
+                
+                if (recordDate >= startOfWeek) weekly++;
+                if (recordDate >= startOfMonth) monthly++;
+                if (recordDate >= startOfYear) yearly++;
+            });
+            
+            return {
+                total: records.length,
+                weekly: weekly,
+                monthly: monthly,
+                yearly: yearly
+            };
+        }
+
+        // Display data in the table
+        function displayData(records) {
             const tbody = document.getElementById('tableBody');
+            
+            if (!records || records.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-folder-open" style="font-size: 2em; color: var(--secondary-color);"></i>
+                            <br>No maintenance records found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
             tbody.innerHTML = '';
             
-            sampleData.forEach(row => {
+            records.forEach(record => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${row.jobCard}</strong></td>
-                    <td>${row.makeModel}</td>
-                    <td>${formatDate(row.date)}</td>
-                    <td>${Number(row.odometer).toLocaleString()} km</td>
-                    <td><span style="background: var(--light-bg); padding: 4px 8px; border-radius: 4px; font-weight: 600;">${row.registration}</span></td>
-                    <td>${row.defect}</td>
-                    <td>${row.action}</td>
-                    <td>${Number(row.nextService).toLocaleString()} km</td>
-                    <td>${row.technician}</td>
-                    <td>${formatDate(row.completionDate)}</td>
-                    <td style="text-align: center;"><span style="background: ${getBreakdownColor(row.breakdownCount)}; color: white; padding: 4px 8px; border-radius: 12px; font-weight: 600;">${row.breakdownCount}</span></td>
+                    <td><strong>${escapeHtml(record.jobCard || '')}</strong></td>
+                    <td>${escapeHtml(record.makeModel || '')}</td>
+                    <td>${formatDate(record.date)}</td>
+                    <td>${record.odometer ? Number(record.odometer).toLocaleString() + ' km' : ''}</td>
+                    <td><span style="background: var(--light-bg); padding: 4px 8px; border-radius: 4px; font-weight: 600;">${escapeHtml(record.registration || '')}</span></td>
+                    <td>${escapeHtml(record.defect || '')}</td>
+                    <td>${escapeHtml(record.action || '')}</td>
+                    <td>${record.nextService ? Number(record.nextService).toLocaleString() + ' km' : ''}</td>
+                    <td>${escapeHtml(record.technician || '')}</td>
+                    <td>${formatDate(record.completionDate)}</td>
+                    <td style="text-align: center;">
+                        <span style="background: ${getBreakdownColor(record.breakdownCount)}; color: white; padding: 4px 8px; border-radius: 12px; font-weight: 600;">
+                            ${record.breakdownCount || '1'}
+                        </span>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function getBreakdownColor(count) {
-            if (count <= 2) return '#27ae60';
-            if (count <= 4) return '#f39c12';
-            return '#e74c3c';
-        }
-
-        function formatDate(dateString) {
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
-            return new Date(dateString).toLocaleDateString('en-ZA', options);
-        }
-
-        // Update statistics
-        function updateStats() {
-            document.getElementById('totalBreakdowns').textContent = '156';
-            document.getElementById('weeklyBreakdowns').textContent = '8';
-            document.getElementById('monthlyBreakdowns').textContent = '32';
-            document.getElementById('yearlyBreakdowns').textContent = '156';
+        // Update statistics display
+        function updateStats(stats) {
+            document.getElementById('totalBreakdowns').textContent = stats.total || '0';
+            document.getElementById('weeklyBreakdowns').textContent = stats.weekly || '0';
+            document.getElementById('monthlyBreakdowns').textContent = stats.monthly || '0';
+            document.getElementById('yearlyBreakdowns').textContent = stats.yearly || '0';
         }
 
         // Handle form submission
         async function handleSubmit(e) {
             e.preventDefault();
             
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+            
             // Show loading on button
             const submitBtn = e.target.querySelector('.btn-submit');
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving to Google Sheets...';
             submitBtn.disabled = true;
             
+            try {
+                // Collect form data
+                const formData = collectFormData();
+                
+                // For writing to Google Sheets, you need OAuth 2.0
+                // This is a simplified example - in production, use OAuth
+                showMessage('Google Sheets API write operations require OAuth 2.0 authentication. Please set up OAuth credentials.', 'warning');
+                
+                // For now, we'll simulate a successful save
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                showMessage('✅ Record would be saved to Google Sheets with proper OAuth setup', 'success');
+                
+                // Reset form
+                resetForm();
+                
+                // Refresh data
+                fetchData();
+                
+            } catch (error) {
+                console.error('Error saving data:', error);
+                showMessage('❌ Error saving to Google Sheets: ' + error.message, 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Collect form data into an object
+        function collectFormData() {
             // Collect parts data
             const parts = [];
             const partRows = document.querySelectorAll('.part-row');
             partRows.forEach(row => {
                 const partNumber = row.querySelector('.part-number').value;
-                if (partNumber) { // Only add if part number is entered
+                if (partNumber) {
                     parts.push({
                         number: partNumber,
                         description: row.querySelector('.part-desc').value,
@@ -962,12 +1093,8 @@
             // Calculate total cost
             const totalCost = calculateTotalCost();
             
-            // Collect form data
-            const formData = {
-                action: 'create',
-                sheetId: SHEET_CONFIG.sheetId,
-                sheetName: SHEET_CONFIG.sheetName,
-                driveId: SHEET_CONFIG.driveId,
+            return {
+                timestamp: new Date().toISOString(),
                 jobCardNo: document.getElementById('jobCardNo').value,
                 makeModel: document.getElementById('makeModel').value,
                 date: document.getElementById('date').value,
@@ -982,51 +1109,43 @@
                 technician: document.getElementById('technician').value,
                 completionDate: document.getElementById('completionDate').value,
                 reminderDate: document.getElementById('reminderDate').value,
-                totalCost: totalCost,
-                timestamp: new Date().toISOString()
+                totalCost: totalCost
             };
+        }
+
+        // Reset form after submission
+        function resetForm() {
+            document.getElementById('maintenanceForm').reset();
             
-            try {
-                console.log('Saving to Google Sheets:', SHEET_CONFIG.sheetName, 'with data:', formData);
-                
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                showMessage('✅ Maintenance record saved successfully to Google Sheets!', 'success');
-                e.target.reset();
-                
-                // Reset date fields
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('date').value = today;
-                document.getElementById('completionDate').value = today;
-                
-                // Reset parts table to single row
-                const partsBody = document.getElementById('partsBody');
-                partsBody.innerHTML = `
-                    <tr class="part-row">
-                        <td><input type="text" class="part-number" placeholder="Part #"></td>
-                        <td><input type="text" class="part-desc" placeholder="Description"></td>
-                        <td><input type="number" class="part-qty" value="1" min="1" onchange="calculateRowTotal(this)"></td>
-                        <td><input type="number" class="part-price" value="0" min="0" step="0.01" onchange="calculateRowTotal(this)"></td>
-                        <td><input type="number" class="part-total" value="0" readonly></td>
-                        <td style="text-align: center;">
-                            <button type="button" onclick="removePartRow(this)" class="btn-remove">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                
-                // Refresh data
-                fetchData();
-                
-            } catch (error) {
-                console.error('Error saving data:', error);
-                showMessage('❌ Error saving record to Google Sheets. Please try again.', 'error');
-            } finally {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
+            // Reset date fields
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            document.getElementById('completionDate').value = today;
+            
+            // Reset reminder date
+            const reminderDate = new Date();
+            reminderDate.setDate(reminderDate.getDate() + 30);
+            document.getElementById('reminderDate').value = reminderDate.toISOString().split('T')[0];
+            
+            // Reset parts table to single row
+            const partsBody = document.getElementById('partsBody');
+            partsBody.innerHTML = `
+                <tr class="part-row">
+                    <td><input type="text" class="part-number" placeholder="Part #"></td>
+                    <td><input type="text" class="part-desc" placeholder="Description"></td>
+                    <td><input type="number" class="part-qty" value="1" min="1" onchange="calculateRowTotal(this)"></td>
+                    <td><input type="number" class="part-price" value="0" min="0" step="0.01" onchange="calculateRowTotal(this)"></td>
+                    <td><input type="number" class="part-total" value="0" readonly></td>
+                    <td style="text-align: center;">
+                        <button type="button" onclick="removePartRow(this)" class="btn-remove">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            
+            // Reset total cost
+            document.getElementById('totalCost').value = 'R 0.00';
         }
 
         // Add new part row
@@ -1051,6 +1170,9 @@
             // Add event listeners to new inputs
             newRow.querySelectorAll('.part-qty, .part-price').forEach(input => {
                 input.addEventListener('change', calculateTotalCost);
+                input.addEventListener('input', function() {
+                    calculateRowTotal(this);
+                });
             });
         }
 
@@ -1090,6 +1212,58 @@
             document.getElementById('totalCost').value = `R ${total.toFixed(2)}`;
             
             return total;
+        }
+
+        // Helper function: Get color based on breakdown count
+        function getBreakdownColor(count) {
+            const num = parseInt(count) || 1;
+            if (num <= 2) return '#27ae60';
+            if (num <= 4) return '#f39c12';
+            return '#e74c3c';
+        }
+
+        // Helper function: Format date
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            try {
+                const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                return new Date(dateString).toLocaleDateString('en-ZA', options);
+            } catch {
+                return dateString;
+            }
+        }
+
+        // Helper function: Escape HTML to prevent XSS
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Validate form before submit
+        function validateForm() {
+            const required = ['jobCardNo', 'makeModel', 'registration', 'reportedDefect', 'completedAction', 'technician'];
+            let isValid = true;
+            
+            required.forEach(field => {
+                const element = document.getElementById(field);
+                if (!element.value.trim()) {
+                    element.style.borderColor = '#e74c3c';
+                    isValid = false;
+                } else {
+                    element.style.borderColor = '#e0e0e0';
+                }
+            });
+            
+            if (!isValid) {
+                showMessage('Please fill in all required fields', 'warning');
+            }
+            
+            return isValid;
         }
 
         // Show message
@@ -1137,33 +1311,6 @@
             window.URL.revokeObjectURL(url);
             
             showMessage('📊 Data exported successfully!', 'success');
-        }
-
-        // Print report
-        function printReport() {
-            window.print();
-        }
-
-        // Validate form before submit
-        function validateForm() {
-            const required = ['jobCardNo', 'makeModel', 'registration', 'reportedDefect', 'completedAction', 'technician'];
-            let isValid = true;
-            
-            required.forEach(field => {
-                const element = document.getElementById(field);
-                if (!element.value.trim()) {
-                    element.style.borderColor = '#e74c3c';
-                    isValid = false;
-                } else {
-                    element.style.borderColor = '#e0e0e0';
-                }
-            });
-            
-            if (!isValid) {
-                showMessage('Please fill in all required fields', 'warning');
-            }
-            
-            return isValid;
         }
     </script>
 </body>
