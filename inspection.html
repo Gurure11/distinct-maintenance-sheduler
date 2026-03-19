@@ -584,41 +584,48 @@
             border-color: var(--danger-color);
         }
 
-        /* Signature Section */
-        .signature-section {
+        /* Name Fields Section - Replacing Signatures */
+        .name-fields-section {
             margin: 30px 0;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
         }
 
-        .signature-box {
-            border: 2px dashed var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .signature-box canvas {
-            width: 100%;
-            height: 100px;
+        .name-field {
             background: #f8f9fa;
-            border-radius: 5px;
-            margin: 10px 0;
-            cursor: crosshair;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid var(--border-color);
         }
 
-        .signature-box button {
-            padding: 8px 15px;
-            background: var(--light-bg);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
+        .name-field label {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
-        .signature-box button:hover {
-            background: var(--border-color);
+        .name-field label i {
+            color: var(--secondary-color);
+        }
+
+        .name-field input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .name-field input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         /* Form Actions */
@@ -776,19 +783,6 @@
             .search-box input {
                 width: 100%;
             }
-            .policy{
-                color: blue;
-                margin-left: 50px;
-                
-            }
-            .policy:hover{
-                color: green;
-                background-color: grey;
-                transition: 0.7s;
-                opacity: 0.8;
-                cursor: pointer;
-            }
-            
         }
     </style>
 </head>
@@ -811,8 +805,8 @@
                 <i class="fas fa-info-circle"></i>
                 Based on Fleet Management Policy - Annexure B: Vehicle Inspection Sheet
             </p>
-            <a class="policy" href="Fleet Policy_v1.pdf" targert="_blank" >
-                 Download Full Policy
+            <a href="#" class="btn-download" onclick="downloadPolicy()">
+                <i class="fas fa-download"></i> Download Full Policy
             </a>
         </div>
 
@@ -1208,17 +1202,15 @@
                     <textarea id="comments" placeholder="Enter any additional notes, defects, or comments..."></textarea>
                 </div>
 
-                <!-- Signatures -->
-                <div class="signature-section">
-                    <div class="signature-box">
-                        <label><i class="fas fa-pen"></i> Inspector Signature *</label>
-                        <canvas id="inspectorSignature" width="300" height="100"></canvas>
-                        <button onclick="clearSignature('inspector')">Clear</button>
+                <!-- Name Fields - Replacing Signatures -->
+                <div class="name-fields-section">
+                    <div class="name-field">
+                        <label><i class="fas fa-pen"></i> Inspector Name *</label>
+                        <input type="text" id="inspectorNameField" placeholder="Enter inspector full name" required>
                     </div>
-                    <div class="signature-box">
-                        <label><i class="fas fa-check"></i> Supervisor Signature (Optional)</label>
-                        <canvas id="supervisorSignature" width="300" height="100"></canvas>
-                        <button onclick="clearSignature('supervisor')">Clear</button>
+                    <div class="name-field">
+                        <label><i class="fas fa-check"></i> Supervisor Name (Optional)</label>
+                        <input type="text" id="supervisorNameField" placeholder="Enter supervisor full name">
                     </div>
                 </div>
 
@@ -1367,90 +1359,6 @@
         // Initialize with light vehicle
         setVehicleType('light');
 
-        // Signature pad functionality
-        let isDrawing = false;
-        let lastX = 0;
-        let lastY = 0;
-
-        function initSignaturePad(canvasId) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-            
-            // Touch support
-            canvas.addEventListener('touchstart', startDrawingTouch);
-            canvas.addEventListener('touchmove', drawTouch);
-            canvas.addEventListener('touchend', stopDrawing);
-
-            function startDrawing(e) {
-                isDrawing = true;
-                [lastX, lastY] = [e.offsetX, e.offsetY];
-            }
-
-            function draw(e) {
-                if (!isDrawing) return;
-                e.preventDefault();
-                
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(e.offsetX, e.offsetY);
-                ctx.strokeStyle = '#2c3e50';
-                ctx.lineWidth = 2;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-                
-                [lastX, lastY] = [e.offsetX, e.offsetY];
-            }
-
-            function startDrawingTouch(e) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                const rect = canvas.getBoundingClientRect();
-                lastX = touch.clientX - rect.left;
-                lastY = touch.clientY - rect.top;
-                isDrawing = true;
-            }
-
-            function drawTouch(e) {
-                if (!isDrawing) return;
-                e.preventDefault();
-                
-                const touch = e.touches[0];
-                const rect = canvas.getBoundingClientRect();
-                const x = touch.clientX - rect.left;
-                const y = touch.clientY - rect.top;
-                
-                const ctx = canvas.getContext('2d');
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(x, y);
-                ctx.strokeStyle = '#2c3e50';
-                ctx.lineWidth = 2;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-                
-                lastX = x;
-                lastY = y;
-            }
-
-            function stopDrawing() {
-                isDrawing = false;
-            }
-        }
-
-        initSignaturePad('inspectorSignature');
-        initSignaturePad('supervisorSignature');
-
-        function clearSignature(type) {
-            const canvas = document.getElementById(type + 'Signature');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
         // Toggle damage selection
         function toggleDamage(btn) {
             btn.classList.toggle('selected');
@@ -1464,10 +1372,8 @@
                 document.getElementById('vehicleReg').value = '';
                 document.getElementById('mileage').value = '';
                 document.getElementById('comments').value = '';
-                
-                // Clear signatures
-                clearSignature('inspector');
-                clearSignature('supervisor');
+                document.getElementById('inspectorNameField').value = '';
+                document.getElementById('supervisorNameField').value = '';
                 
                 // Remove damage selections
                 document.querySelectorAll('.damage-btn.selected').forEach(btn => {
@@ -1609,6 +1515,10 @@
                     <span class="result-value">${inspection.inspectorName || 'N/A'}</span>
                 </div>
                 <div class="result-item">
+                    <span class="result-label">Supervisor:</span>
+                    <span class="result-value">${inspection.supervisorName || 'N/A'}</span>
+                </div>
+                <div class="result-item">
                     <span class="result-label">Employee ID:</span>
                     <span class="result-value">${inspection.employeeId || 'N/A'}</span>
                 </div>
@@ -1666,20 +1576,10 @@
             const inspector = document.getElementById('inspectorName').value;
             const vehicleReg = document.getElementById('vehicleReg').value;
             const mileage = document.getElementById('mileage').value;
+            const inspectorName = document.getElementById('inspectorNameField').value;
 
-            if (!inspector || !vehicleReg || !mileage) {
-                alert('Please fill in all required fields: Inspector Name, Vehicle Registration, and Mileage');
-                return;
-            }
-
-            // Validate signature
-            const inspectorCanvas = document.getElementById('inspectorSignature');
-            const ctx = inspectorCanvas.getContext('2d');
-            const pixelData = ctx.getImageData(0, 0, inspectorCanvas.width, inspectorCanvas.height).data;
-            const hasSignature = pixelData.some(value => value !== 0);
-            
-            if (!hasSignature) {
-                alert('Please provide your signature');
+            if (!inspector || !vehicleReg || !mileage || !inspectorName) {
+                alert('Please fill in all required fields: Inspector Name (top), Vehicle Registration, Mileage, and Inspector Name (signature field)');
                 return;
             }
 
@@ -1705,11 +1605,6 @@
             const naCount = Object.values(items).filter(v => v === 'NA').length;
             const okCount = Object.keys(items).length - repairCount - naCount;
 
-            // Get signatures
-            const inspectorSignature = inspectorCanvas.toDataURL('image/png');
-            const supervisorCanvas = document.getElementById('supervisorSignature');
-            const supervisorSignature = supervisorCanvas.toDataURL('image/png');
-
             // Prepare data for Google Sheets
             const formData = {
                 action: 'save',
@@ -1723,8 +1618,8 @@
                 items: items,
                 damages: damages.join(', '),
                 comments: document.getElementById('comments').value,
-                inspectorSignature: inspectorSignature,
-                supervisorSignature: supervisorSignature,
+                inspectorSignature: inspectorName,
+                supervisorSignature: document.getElementById('supervisorNameField').value,
                 itemsOK: okCount,
                 itemsRepair: repairCount,
                 itemsNA: naCount,
