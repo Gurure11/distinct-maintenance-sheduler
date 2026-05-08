@@ -854,7 +854,9 @@
                 <i class="fas fa-info-circle"></i>
                 Based on Fleet Management Policy - Annexure B: Vehicle Inspection Sheet
             </p>
-           <a href="Fleet Policy_v1.pdf" class="btn-download" onclick="downloadPolicy(event)">
+            <a href="Fleet Policy_v1.pdf" class="btn-download" onclick="downloadPolicy(event)">
+                <i class="fas fa-download"></i> Download Full Policy
+            </a>
         </div>
 
         <!-- View Toggle -->
@@ -1802,8 +1804,9 @@
         }
 
         // Download policy function
-        function downloadPolicy() {
-            window.open(`https://drive.google.com/drive/folders/${DRIVE_FOLDER_ID}`, '_blank');
+        function downloadPolicy(event) {
+            event.preventDefault();
+            window.open('Fleet Policy_v1.pdf', '_blank');
         }
     </script>
 </body>
