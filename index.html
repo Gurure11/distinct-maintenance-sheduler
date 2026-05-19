@@ -569,6 +569,76 @@
             opacity: 0.7;
             
         }
+    
+
+        /* Fleet Management Upgrade - Service Alerts, Offroad Pool, Repair Costs */
+        .fleet-upgrade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .alert-panel {
+            background: #fff7ed;
+            border: 2px solid #fed7aa;
+            border-radius: 15px;
+            padding: 18px;
+            margin: 20px 0;
+        }
+
+        .alert-panel h3 {
+            margin-top: 0;
+            color: #9a3412;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 999px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85em;
+            white-space: nowrap;
+        }
+
+        .status-active { background: #27ae60; }
+        .status-service { background: #f39c12; }
+        .status-overdue { background: #e74c3c; }
+        .status-offroad { background: #111827; }
+        .status-repair { background: #7c3aed; }
+        .status-awaiting { background: #d97706; }
+        .status-completed { background: #16a34a; }
+
+        .btn-danger {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.85em;
+            border-radius: 8px;
+        }
+
+        .cost-input {
+            max-width: 140px;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .section-note {
+            color: #64748b;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -640,6 +710,27 @@
                         <p id="yearlyBreakdowns">0</p>
                     </div>
                 </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);">
+                    <i class="fas fa-bell"></i>
+                    <div class="stat-info">
+                        <h3>Service Due</h3>
+                        <p id="serviceDueCount">0</p>
+                    </div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #111827 0%, #374151 100%);">
+                    <i class="fas fa-car-crash"></i>
+                    <div class="stat-info">
+                        <h3>Offroad Vehicles</h3>
+                        <p id="offroadVehicles">0</p>
+                    </div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #16a34a 0%, #065f46 100%);">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <div class="stat-info">
+                        <h3>Repair Costs</h3>
+                        <p id="repairCostTotal">R0</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Data Table -->
@@ -658,15 +749,134 @@
                             <th>Technician</th>
                             <th>Completion Date</th>
                             <th>Breakdown #</th>
+                            <th>Total Repair Cost</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="11" style="text-align: center; padding: 40px;">
+                            <td colspan="12" style="text-align: center; padding: 40px;">
                                 <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: var(--secondary-color);"></i>
                                 <br>Loading data from Google Sheets...
                             </td>
                         </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+
+        <!-- Service Due Alerts Section -->
+        <section class="dashboard">
+            <h2><i class="fas fa-bell"></i> Automated Service Detection</h2>
+            <p class="section-note">Latest odometer readings are matched by registration number against the next service kilometer value. Email alerts are sent to fleet@onpointontime.co.za.</p>
+            <div class="search-filter">
+                <button onclick="runServiceCheck()" class="btn-primary" style="background: var(--accent-color);">
+                    <i class="fas fa-sync"></i> Check Service Due Now
+                </button>
+                <button onclick="fetchServiceDue()" class="btn-primary">
+                    <i class="fas fa-list"></i> Refresh Service Due List
+                </button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Registration</th>
+                            <th>Vehicle</th>
+                            <th>Current KM</th>
+                            <th>Next Service KM</th>
+                            <th>Status</th>
+                            <th>Last Fuel Log</th>
+                            <th>Email Alert</th>
+                        </tr>
+                    </thead>
+                    <tbody id="serviceDueBody">
+                        <tr><td colspan="7" style="text-align:center; padding:30px;">Click refresh to load service due vehicles.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Serious Breakdown Pool Section -->
+        <section class="dashboard">
+            <h2><i class="fas fa-car-crash"></i> Serious Breakdown Pool</h2>
+            <p class="section-note">Offroad cars needing serious service are stored in Google Sheet tab <strong>Pool</strong> in spreadsheet ID <strong>1UOOBScKX64TTIGQRyA89OeVPybIPw031eVhjpvHP7_c</strong>.</p>
+
+            <form id="poolForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="required"><i class="fas fa-id-card"></i> Registration</label>
+                        <input type="text" id="poolRegistration" placeholder="e.g., CA 123-456" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="required"><i class="fas fa-car"></i> Vehicle</label>
+                        <input type="text" id="poolVehicle" placeholder="e.g., Toyota Hilux" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="required"><i class="fas fa-triangle-exclamation"></i> Fault</label>
+                        <input type="text" id="poolFault" placeholder="Engine, gearbox, accident, etc." required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-gauge-high"></i> Severity</label>
+                        <select id="poolSeverity">
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                            <option value="Medium">Medium</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-clipboard-check"></i> Status</label>
+                        <select id="poolStatus">
+                            <option value="Offroad">Offroad</option>
+                            <option value="Awaiting Parts">Awaiting Parts</option>
+                            <option value="Under Repair">Under Repair</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user-tie"></i> Supervisor</label>
+                        <input type="text" id="poolSupervisor" placeholder="Supervisor name">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill"></i> Estimated Cost</label>
+                        <input type="number" id="poolEstimatedCost" min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-check"></i> Total Repair Cost</label>
+                        <input type="number" id="poolTotalRepairCost" min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-note-sticky"></i> Notes</label>
+                        <textarea id="poolNotes" placeholder="Workshop notes, parts required, diagnosis..."></textarea>
+                    </div>
+                </div>
+                <div class="form-actions" style="text-align:left;">
+                    <button type="submit" class="btn-submit" style="border-radius:12px; padding:15px 28px;">
+                        <i class="fas fa-plus"></i> Add Vehicle To Pool
+                    </button>
+                </div>
+            </form>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pool ID</th>
+                            <th>Registration</th>
+                            <th>Vehicle</th>
+                            <th>Fault</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Date Added</th>
+                            <th>Supervisor</th>
+                            <th>Estimated Cost</th>
+                            <th>Total Repair Cost</th>
+                            <th>Update Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody id="poolBody">
+                        <tr><td colspan="11" style="text-align:center; padding:30px;">Loading offroad vehicle pool...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -806,7 +1016,7 @@
         // GOOGLE APPS SCRIPT WEB APP URL
         // REPLACE THIS WITH YOUR DEPLOYED APPS SCRIPT URL
         // =============================================
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxALLc6xH200q8ip2GRhhUuS2DWPGtXoEpcq5hReb0ZaBSfvUxblJ6M8zm04saMuEpw/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby56MP_XM4GeYcfHVk3JYW8kxbghFvhd_y0JYJcPTm1dJLJ5dBjS6h_5MF_P-prEYFxQw/exec';
         
         // Google Sheets Configuration
         const SHEET_CONFIG = {
@@ -850,7 +1060,7 @@
             // Show loading state
             document.getElementById('tableBody').innerHTML = `
                 <tr>
-                    <td colspan="11" style="text-align: center; padding: 40px;">
+                    <td colspan="12" style="text-align: center; padding: 40px;">
                         <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: var(--secondary-color);"></i>
                         <br>Fetching data from Google Sheets...
                     </td>
@@ -912,7 +1122,7 @@
             if (!records || records.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="11" style="text-align: center; padding: 40px;">
+                        <td colspan="12" style="text-align: center; padding: 40px;">
                             <i class="fas fa-folder-open" style="font-size: 2em; color: var(--secondary-color);"></i>
                             <br>No maintenance records found
                         </td>
@@ -941,6 +1151,7 @@
                             ${record.breakdownCount || '1'}
                         </span>
                     </td>
+                    <td><strong>${formatCurrency(record.totalCost || record.totalRepairCost || 0)}</strong></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1252,6 +1463,183 @@
             
             showMessage('📊 Data exported successfully!', 'success');
         }
+
+
+        // ================= FLEET MANAGEMENT UPGRADE FUNCTIONS =================
+        async function fetchServiceDue() {
+            const tbody = document.getElementById('serviceDueBody');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;"><i class="fas fa-spinner fa-spin"></i> Checking service due vehicles...</td></tr>';
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=getServiceDue&t=${Date.now()}`, { method: 'GET', mode: 'cors' });
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'Could not load service due records');
+                displayServiceDue(result.data || []);
+                document.getElementById('serviceDueCount').textContent = (result.data || []).length;
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#e74c3c;">${escapeHtml(error.message)}</td></tr>`;
+            }
+        }
+
+        async function runServiceCheck() {
+            showMessage('Running service check. Emails will be sent for due vehicles.', 'warning');
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'runServiceCheck' })
+                });
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'Service check failed');
+                showMessage(`Service check complete. ${result.alertsSent || 0} email alert(s) sent.`, 'success');
+                fetchServiceDue();
+            } catch (error) {
+                showMessage('Service check error: ' + error.message, 'error');
+            }
+        }
+
+        function displayServiceDue(records) {
+            const tbody = document.getElementById('serviceDueBody');
+            if (!records.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;">No vehicles currently due for service.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            records.forEach(record => {
+                const overdue = Number(record.currentKM || 0) >= Number(record.nextServiceKM || 0);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${escapeHtml(record.registration || '')}</strong></td>
+                    <td>${escapeHtml(record.vehicle || record.makeModel || '')}</td>
+                    <td>${Number(record.currentKM || 0).toLocaleString()} km</td>
+                    <td>${Number(record.nextServiceKM || 0).toLocaleString()} km</td>
+                    <td><span class="status-badge ${overdue ? 'status-overdue' : 'status-service'}">${overdue ? 'Due / Overdue' : 'Approaching'}</span></td>
+                    <td>${formatDate(record.lastFuelDate || record.lastUpdated || '')}</td>
+                    <td>${record.alertSent ? 'Sent' : 'Pending'}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function fetchPoolData() {
+            const tbody = document.getElementById('poolBody');
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=getPool&t=${Date.now()}`, { method: 'GET', mode: 'cors' });
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'Could not load Pool data');
+                displayPoolData(result.data || []);
+                updatePoolStats(result.data || []);
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:30px; color:#e74c3c;">${escapeHtml(error.message)}</td></tr>`;
+            }
+        }
+
+        function displayPoolData(records) {
+            const tbody = document.getElementById('poolBody');
+            if (!records.length) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:30px;">No offroad vehicles in the pool.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            records.forEach(record => {
+                const statusClass = getStatusClass(record.status);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${escapeHtml(record.poolId || '')}</td>
+                    <td><strong>${escapeHtml(record.registration || '')}</strong></td>
+                    <td>${escapeHtml(record.vehicle || '')}</td>
+                    <td>${escapeHtml(record.fault || '')}</td>
+                    <td>${escapeHtml(record.severity || '')}</td>
+                    <td><span class="status-badge ${statusClass}">${escapeHtml(record.status || 'Offroad')}</span></td>
+                    <td>${formatDate(record.dateAdded || '')}</td>
+                    <td>${escapeHtml(record.supervisor || '')}</td>
+                    <td>${formatCurrency(record.estimatedCost || 0)}</td>
+                    <td><strong>${formatCurrency(record.totalRepairCost || 0)}</strong></td>
+                    <td>
+                        <input class="cost-input" id="cost-${escapeHtml(record.poolId || '')}" type="number" min="0" step="0.01" value="${Number(record.totalRepairCost || 0)}">
+                        <button class="btn-primary btn-small" onclick="updatePoolRepairCost('${escapeHtml(record.poolId || '')}')"><i class="fas fa-save"></i></button>
+                    </td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updatePoolStats(records) {
+            const activeOffroad = records.filter(r => String(r.status || '').toLowerCase() !== 'completed').length;
+            const totalCost = records.reduce((sum, r) => sum + (Number(r.totalRepairCost || 0) || 0), 0);
+            const offroadEl = document.getElementById('offroadVehicles');
+            const repairEl = document.getElementById('repairCostTotal');
+            if (offroadEl) offroadEl.textContent = activeOffroad;
+            if (repairEl) repairEl.textContent = formatCurrency(totalCost).replace('.00','');
+        }
+
+        async function savePoolVehicle(e) {
+            e.preventDefault();
+            const data = {
+                registration: document.getElementById('poolRegistration').value,
+                vehicle: document.getElementById('poolVehicle').value,
+                fault: document.getElementById('poolFault').value,
+                severity: document.getElementById('poolSeverity').value,
+                status: document.getElementById('poolStatus').value,
+                supervisor: document.getElementById('poolSupervisor').value,
+                estimatedCost: document.getElementById('poolEstimatedCost').value,
+                totalRepairCost: document.getElementById('poolTotalRepairCost').value,
+                notes: document.getElementById('poolNotes').value
+            };
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST', mode: 'cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'savePoolVehicle', data: JSON.stringify(data) })
+                });
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'Could not save pool vehicle');
+                showMessage('Offroad vehicle saved to Pool sheet.', 'success');
+                document.getElementById('poolForm').reset();
+                fetchPoolData();
+            } catch (error) {
+                showMessage('Pool save error: ' + error.message, 'error');
+            }
+        }
+
+        async function updatePoolRepairCost(poolId) {
+            const value = document.getElementById(`cost-${poolId}`).value;
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST', mode: 'cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'updatePoolCost', poolId: poolId, totalRepairCost: value })
+                });
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'Could not update cost');
+                showMessage('Repair cost updated.', 'success');
+                fetchPoolData();
+            } catch (error) {
+                showMessage('Cost update error: ' + error.message, 'error');
+            }
+        }
+
+        function getStatusClass(status) {
+            const s = String(status || '').toLowerCase();
+            if (s.includes('awaiting')) return 'status-awaiting';
+            if (s.includes('repair')) return 'status-repair';
+            if (s.includes('complete')) return 'status-completed';
+            if (s.includes('service')) return 'status-service';
+            if (s.includes('active')) return 'status-active';
+            return 'status-offroad';
+        }
+
+        function formatCurrency(value) {
+            const num = Number(String(value).replace(/[^0-9.-]/g, '')) || 0;
+            return 'R ' + num.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Start upgraded dashboard data after original page initialization
+        window.addEventListener('load', function() {
+            const poolForm = document.getElementById('poolForm');
+            if (poolForm) poolForm.addEventListener('submit', savePoolVehicle);
+            fetchPoolData();
+            fetchServiceDue();
+        });
+
     </script>
 </body>
 </html>
