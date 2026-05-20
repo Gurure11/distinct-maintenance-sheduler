@@ -3,125 +3,142 @@
 <head>
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Licence Dashboard</title>
+  <title>Distinct Infrastructure Inventory</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f3f4f6;
-      color: #111827;
+    :root {
+      --navy: #0f172a;
+      --blue: #2563eb;
+      --light: #f3f4f6;
+      --text: #111827;
+      --muted: #6b7280;
+      --green: #16a34a;
+      --red: #dc2626;
+      --orange: #f97316;
+      --border: #e5e7eb;
     }
 
-    .container {
-      max-width: 1100px;
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--light);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 1300px;
       margin: 0 auto;
       padding: 24px;
     }
 
-    .header {
-      background: #111827;
+    .hero {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
       color: white;
-      padding: 20px;
-      border-radius: 14px;
-      margin-bottom: 18px;
+      padding: 28px;
+      border-radius: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 25px rgba(15,23,42,0.2);
     }
 
-    .header h1 {
+    .hero h1 {
       margin: 0;
-      font-size: 26px;
+      font-size: 30px;
     }
 
-    .header p {
+    .hero p {
       margin-bottom: 0;
+      color: #dbeafe;
     }
 
-    .status-grid {
+    .stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 16px;
       margin-bottom: 20px;
     }
 
-    .status-card {
+    .stat {
       background: white;
-      border-radius: 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      overflow: hidden;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
     }
 
-    .status-title {
-      padding: 14px 16px;
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
       font-weight: bold;
-      color: white;
+      text-transform: uppercase;
     }
 
-    .orange { background: #f97316; }
-    .red { background: #dc2626; }
-
-    .status-body {
-      padding: 14px 16px;
-      min-height: 80px;
+    .stat strong {
+      display: block;
+      font-size: 30px;
+      margin-top: 8px;
     }
 
-    .person {
-      padding: 10px 0;
-      border-bottom: 1px solid #e5e7eb;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .person:last-child {
-      border-bottom: none;
-    }
-
-    .empty {
-      color: #6b7280;
-      font-style: italic;
-    }
-
-    .form-card {
-      background: white;
-      border-radius: 14px;
-      padding: 22px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
-
-    .form-card h2 {
-      margin-top: 0;
-    }
-
-    .form-grid {
+    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 14px;
+      grid-template-columns: 390px 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 950px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
     }
 
     label {
+      display: block;
       font-size: 13px;
       font-weight: bold;
-      display: block;
       margin-bottom: 6px;
+      color: #374151;
     }
 
-    input {
+    input, select, textarea {
       width: 100%;
-      box-sizing: border-box;
-      padding: 11px;
       border: 1px solid #d1d5db;
       border-radius: 10px;
+      padding: 11px;
       font-size: 14px;
+      margin-bottom: 12px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 75px;
+      resize: vertical;
     }
 
     button {
-      margin-top: 18px;
-      background: #2563eb;
-      color: white;
       border: none;
-      padding: 12px 20px;
       border-radius: 10px;
-      font-size: 15px;
+      padding: 12px 16px;
+      font-size: 14px;
       font-weight: bold;
       cursor: pointer;
+      background: var(--blue);
+      color: white;
     }
 
     button:hover {
@@ -133,11 +150,78 @@
       cursor: not-allowed;
     }
 
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .toolbar input, .toolbar select {
+      margin-bottom: 0;
+      max-width: 260px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f9fafb;
+      color: #374151;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .in {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .out {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .low {
+      background: #ffedd5;
+      color: #9a3412;
+    }
+
+    .ok {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
     .message {
-      margin-top: 14px;
+      display: none;
       padding: 12px;
       border-radius: 10px;
-      display: none;
+      margin-top: 10px;
     }
 
     .success {
@@ -149,106 +233,264 @@
       background: #fee2e2;
       color: #991b1b;
     }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Licence Dashboard</h1>
-      <p>Distinct licence data entry and expiry monitoring</p>
+  <div class="app">
+    <div class="hero">
+      <h1>Distinct Infrastructure Inventory</h1>
+      <p>Tools and motor spare parts stock control, movement tracking, search, and reports.</p>
     </div>
 
-    <div class="status-grid">
-      <div class="status-card">
-        <div class="status-title orange">Licence About To Expire</div>
-        <div class="status-body" id="aboutToExpireBox">Loading...</div>
+    <div class="stats">
+      <div class="stat">
+        <span>Unique Items</span>
+        <strong id="uniqueItems">0</strong>
       </div>
-
-      <div class="status-card">
-        <div class="status-title red">Licence Expired</div>
-        <div class="status-body" id="expiredBox">Loading...</div>
+      <div class="stat">
+        <span>Total Stock In</span>
+        <strong id="totalStockIn">0</strong>
+      </div>
+      <div class="stat">
+        <span>Total Stock Out</span>
+        <strong id="totalStockOut">0</strong>
+      </div>
+      <div class="stat">
+        <span>Low Stock Alerts</span>
+        <strong id="lowStockCount">0</strong>
       </div>
     </div>
 
-    <div class="form-card">
-      <h2>Enter Licence Details</h2>
-      <form id="licenceForm">
-        <div class="form-grid">
-          <div>
-            <label>Name</label>
-            <input name="name" required>
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>Record Stock Movement</h2>
+          <form id="inventoryForm">
+            <label>Transaction Type</label>
+            <select name="transactionType" required>
+              <option value="">Select</option>
+              <option>Stock In</option>
+              <option>Stock Out</option>
+            </select>
+
+            <label>Item ID</label>
+            <input name="itemId" placeholder="Leave blank for new item">
+
+            <label>Item Name</label>
+            <input name="itemName" placeholder="Example: Brake Pads, Drill Machine" required>
+
+            <div class="row">
+              <div>
+                <label>Category</label>
+                <select name="category" required>
+                  <option value="">Select</option>
+                  <option>Tools</option>
+                  <option>Motor Spare Parts</option>
+                  <option>Consumables</option>
+                  <option>Safety Equipment</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label>Item Type</label>
+                <input name="itemType" placeholder="Example: Electrical, Engine, Body">
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Brand</label>
+                <input name="brand">
+              </div>
+              <div>
+                <label>Model / Part Number</label>
+                <input name="modelPartNumber">
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Quantity</label>
+                <input name="quantity" type="number" min="1" required>
+              </div>
+              <div>
+                <label>Unit</label>
+                <input name="unit" value="Each">
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Minimum Stock</label>
+                <input name="minimumStock" type="number" min="0" value="0">
+              </div>
+              <div>
+                <label>Location</label>
+                <input name="location" placeholder="Store / Site / Vehicle">
+              </div>
+            </div>
+
+            <label>Issued To / Received From</label>
+            <input name="party" placeholder="Person or supplier">
+
+            <label>Vehicle / Asset</label>
+            <input name="vehicleAsset" placeholder="Registration, fleet number, asset name">
+
+            <div class="row">
+              <div>
+                <label>Department</label>
+                <input name="department" value="Infrastructure">
+              </div>
+              <div>
+                <label>Recorded By</label>
+                <input name="recordedBy">
+              </div>
+            </div>
+
+            <label>Reference Number</label>
+            <input name="referenceNumber" placeholder="Invoice, job card, requisition">
+
+            <label>Description</label>
+            <textarea name="description"></textarea>
+
+            <label>Notes</label>
+            <textarea name="notes"></textarea>
+
+            <button id="saveBtn" type="submit">Save Transaction</button>
+            <div id="message" class="message"></div>
+          </form>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="section-title">
+            <h2>Inventory Search</h2>
+            <button type="button" onclick="refreshAll()">Refresh</button>
           </div>
 
-          <div>
-            <label>Surname</label>
-            <input name="surname" required>
+          <div class="toolbar">
+            <input id="searchInput" placeholder="Search item, category, part number, location...">
+            <select id="categoryFilter">
+              <option value="">All Categories</option>
+              <option>Tools</option>
+              <option>Motor Spare Parts</option>
+              <option>Consumables</option>
+              <option>Safety Equipment</option>
+              <option>Other</option>
+            </select>
+            <select id="stockFilter">
+              <option value="">All Stock</option>
+              <option value="low">Low Stock Only</option>
+              <option value="available">Available Stock</option>
+            </select>
           </div>
 
-          <div>
-            <label>Licence Number</label>
-            <input name="licenceNumber" required>
-          </div>
-
-          <div>
-            <label>Country of Issue</label>
-            <input name="countryOfIssue" value="South Africa" required>
-          </div>
-
-          <div>
-            <label>Company</label>
-            <input name="company" value="Distinct" required>
-          </div>
-
-          <div>
-            <label>Department</label>
-            <input name="department" required>
-          </div>
-
-          <div>
-            <label>Licence Type</label>
-            <input name="licenceType" required>
-          </div>
-
-          <div>
-            <label>Validity</label>
-            <input name="validity" type="date" required>
-          </div>
-
-          <div>
-            <label>First Issue</label>
-            <input name="firstIssue" type="date" required>
-          </div>
-
-          <div>
-            <label>Vehicle Restrictions</label>
-            <input name="vehicleRestrictions" required>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Category</th>
+                  <th>Part / Model</th>
+                  <th>Location</th>
+                  <th>Current Stock</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryTable">
+                <tr><td colspan="6">Loading inventory...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <button id="submitBtn" type="submit">Save Licence</button>
-        <div id="message" class="message"></div>
-      </form>
+        <div class="card">
+          <h2>Movement Report</h2>
+          <p class="small">Shows the latest stock in and stock out transactions.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Item</th>
+                  <th>Movement</th>
+                  <th>Qty In</th>
+                  <th>Qty Out</th>
+                  <th>Issued To / From</th>
+                  <th>Vehicle / Asset</th>
+                </tr>
+              </thead>
+              <tbody id="reportTable">
+                <tr><td colspan="7">Loading report...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Low Stock Alerts</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Category</th>
+                  <th>Current Stock</th>
+                  <th>Minimum Stock</th>
+                </tr>
+              </thead>
+              <tbody id="lowStockTable">
+                <tr><td colspan="4">Loading low stock alerts...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEC6RYcQHmdpvaW9_hWJ0imc9_e-ybG83QGuymG1wDhSXGG4q6kUmoiQ0SsU3ghdzZxw/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyimGZeeYR9gJempQ0paBWcSXGDlMwo0SJqKYwer3BZYtAwfj3GWPaqz3wgbgEjASq1/exec';
 
-    document.addEventListener('DOMContentLoaded', loadStatus);
+    let inventoryItems = [];
 
-    document.getElementById('licenceForm').addEventListener('submit', async function(e) {
+    document.addEventListener('DOMContentLoaded', refreshAll);
+
+    document.getElementById('searchInput').addEventListener('input', renderInventoryTable);
+    document.getElementById('categoryFilter').addEventListener('change', renderInventoryTable);
+    document.getElementById('stockFilter').addEventListener('change', renderInventoryTable);
+
+    document.getElementById('inventoryForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      const submitBtn = document.getElementById('submitBtn');
-      const formData = Object.fromEntries(new FormData(e.target).entries());
+      const saveBtn = document.getElementById('saveBtn');
+      const payload = Object.fromEntries(new FormData(e.target).entries());
+      payload.action = 'save';
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Saving...';
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
 
       try {
         const response = await fetch(SCRIPT_URL, {
           method: 'POST',
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
           headers: {
             'Content-Type': 'text/plain;charset=utf-8'
           }
@@ -257,68 +499,173 @@
         const result = await response.json();
 
         if (!result.success) {
-          throw new Error(result.message || 'Could not save record.');
+          throw new Error(result.message || 'Could not save transaction.');
         }
 
-        showMessage(result.message || 'Saved successfully.', 'success');
+        showMessage(result.message + ' Current stock: ' + result.currentStock, 'success');
         e.target.reset();
-        e.target.countryOfIssue.value = 'South Africa';
-        e.target.company.value = 'Distinct';
-        loadStatus();
+        e.target.unit.value = 'Each';
+        e.target.department.value = 'Infrastructure';
+        e.target.minimumStock.value = 0;
+        refreshAll();
+
       } catch (error) {
-        showMessage(error.message || 'Could not save record.', 'error');
+        showMessage(error.message || 'Could not save transaction.', 'error');
       }
 
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Save Licence';
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Transaction';
     });
 
-    async function loadStatus() {
+    async function refreshAll() {
+      await Promise.all([
+        loadInventory(),
+        loadReports()
+      ]);
+    }
+
+    async function loadInventory() {
       try {
-        const response = await fetch(SCRIPT_URL + '?action=status');
+        const response = await fetch(SCRIPT_URL + '?action=items');
         const data = await response.json();
-        renderStatus(data);
+
+        inventoryItems = data.items || [];
+        renderInventoryTable();
+
       } catch (error) {
-        document.getElementById('aboutToExpireBox').innerHTML = '<div class="empty">Could not load status.</div>';
-        document.getElementById('expiredBox').innerHTML = '<div class="empty">Could not load status.</div>';
+        document.getElementById('inventoryTable').innerHTML =
+          '<tr><td colspan="6">Could not load inventory.</td></tr>';
       }
     }
 
-    function renderStatus(data) {
-      renderPeople('aboutToExpireBox', data.aboutToExpire, 'No licences about to expire.');
-      renderPeople('expiredBox', data.expired, 'No expired licences.');
+    async function loadReports() {
+      try {
+        const response = await fetch(SCRIPT_URL + '?action=reports');
+        const data = await response.json();
+
+        const summary = data.summary || {};
+
+        document.getElementById('uniqueItems').textContent = summary.uniqueItems || 0;
+        document.getElementById('totalStockIn').textContent = summary.totalStockIn || 0;
+        document.getElementById('totalStockOut').textContent = summary.totalStockOut || 0;
+        document.getElementById('lowStockCount').textContent = summary.lowStockCount || 0;
+
+        renderReportTable(data.transactions || []);
+        renderLowStockTable(data.lowStockItems || []);
+
+      } catch (error) {
+        document.getElementById('reportTable').innerHTML =
+          '<tr><td colspan="7">Could not load report.</td></tr>';
+        document.getElementById('lowStockTable').innerHTML =
+          '<tr><td colspan="4">Could not load low stock alerts.</td></tr>';
+      }
     }
 
-    function renderPeople(elementId, people, emptyText) {
-      const box = document.getElementById(elementId);
+    function renderInventoryTable() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const category = document.getElementById('categoryFilter').value;
+      const stock = document.getElementById('stockFilter').value;
 
-      if (!people || people.length === 0) {
-        box.innerHTML = '<div class="empty">' + emptyText + '</div>';
+      let rows = inventoryItems.filter(function(item) {
+        const text = [
+          item.itemId,
+          item.itemName,
+          item.category,
+          item.itemType,
+          item.brand,
+          item.modelPartNumber,
+          item.description,
+          item.location
+        ].join(' ').toLowerCase();
+
+        const searchMatch = !search || text.includes(search);
+        const categoryMatch = !category || item.category === category;
+        const stockMatch =
+          !stock ||
+          (stock === 'low' && item.lowStock) ||
+          (stock === 'available' && Number(item.currentStock || 0) > 0);
+
+        return searchMatch && categoryMatch && stockMatch;
+      });
+
+      if (rows.length === 0) {
+        document.getElementById('inventoryTable').innerHTML =
+          '<tr><td colspan="6">No inventory items found.</td></tr>';
         return;
       }
 
-      box.innerHTML = people.map(function(p) {
-        return '<div class="person">' +
-          '<strong>' + escapeHtml(p.name) + ' ' + escapeHtml(p.surname) + '</strong><br>' +
-          'Licence: ' + escapeHtml(p.licenceNumber) + '<br>' +
-          'Company: ' + escapeHtml(p.company) + '<br>' +
-          'Department: ' + escapeHtml(p.department) + '<br>' +
-          'Type: ' + escapeHtml(p.licenceType) + '<br>' +
-          'Validity: ' + escapeHtml(p.validity) + '<br>' +
-          'Days remaining: ' + escapeHtml(String(p.daysRemaining)) +
-        '</div>';
+      document.getElementById('inventoryTable').innerHTML = rows.map(function(item) {
+        const statusClass = item.lowStock ? 'low' : 'ok';
+        const statusText = item.lowStock ? 'Low Stock' : 'Available';
+
+        return `
+          <tr>
+            <td>
+              <strong>${escapeHtml(item.itemName)}</strong><br>
+              <span class="small">${escapeHtml(item.itemId)}</span>
+            </td>
+            <td>${escapeHtml(item.category)}<br><span class="small">${escapeHtml(item.itemType)}</span></td>
+            <td>${escapeHtml(item.modelPartNumber)}<br><span class="small">${escapeHtml(item.brand)}</span></td>
+            <td>${escapeHtml(item.location)}</td>
+            <td><strong>${escapeHtml(String(item.currentStock))}</strong> ${escapeHtml(item.unit || '')}</td>
+            <td><span class="badge ${statusClass}">${statusText}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderReportTable(transactions) {
+      if (!transactions.length) {
+        document.getElementById('reportTable').innerHTML =
+          '<tr><td colspan="7">No transactions yet.</td></tr>';
+        return;
+      }
+
+      document.getElementById('reportTable').innerHTML = transactions.map(function(t) {
+        const badgeClass = t.transactionType === 'Stock In' ? 'in' : 'out';
+
+        return `
+          <tr>
+            <td>${escapeHtml(t.timestamp)}</td>
+            <td><strong>${escapeHtml(t.itemName)}</strong><br><span class="small">${escapeHtml(t.itemId)}</span></td>
+            <td><span class="badge ${badgeClass}">${escapeHtml(t.transactionType)}</span></td>
+            <td>${escapeHtml(String(t.quantityIn))}</td>
+            <td>${escapeHtml(String(t.quantityOut))}</td>
+            <td>${escapeHtml(t.party)}</td>
+            <td>${escapeHtml(t.vehicleAsset)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderLowStockTable(items) {
+      if (!items.length) {
+        document.getElementById('lowStockTable').innerHTML =
+          '<tr><td colspan="4">No low stock items.</td></tr>';
+        return;
+      }
+
+      document.getElementById('lowStockTable').innerHTML = items.map(function(item) {
+        return `
+          <tr>
+            <td><strong>${escapeHtml(item.itemName)}</strong><br><span class="small">${escapeHtml(item.itemId)}</span></td>
+            <td>${escapeHtml(item.category)}</td>
+            <td>${escapeHtml(String(item.currentStock))}</td>
+            <td>${escapeHtml(String(item.minimumStock))}</td>
+          </tr>
+        `;
       }).join('');
     }
 
     function showMessage(text, type) {
-      const msg = document.getElementById('message');
-      msg.textContent = text;
-      msg.className = 'message ' + type;
-      msg.style.display = 'block';
+      const message = document.getElementById('message');
+      message.textContent = text;
+      message.className = 'message ' + type;
+      message.style.display = 'block';
 
       setTimeout(function() {
-        msg.style.display = 'none';
-      }, 4000);
+        message.style.display = 'none';
+      }, 4500);
     }
 
     function escapeHtml(value) {
