@@ -252,7 +252,17 @@
 
           <div>
             <label>Licence Type</label>
-            <input name="licenceType" required>
+            <select name="licenceType" required>
+              <option value="" selected disabled>Select licence type</option>
+              <option>C</option>
+              <option>C1</option>
+              <option>A1</option>
+              <option>A2</option>
+              <option>EC</option>
+              <option>EC1</option>
+              <option>PrDp</option>
+              <option>B</option>
+            </select>
           </div>
 
           <div>
@@ -293,6 +303,11 @@
 
       const submitBtn = document.getElementById('submitBtn');
       const formData = Object.fromEntries(new FormData(e.target).entries());
+
+      if (formData.company === 'Distinct') {
+        showMessage('Records are no longer sent to the Distinct sheet tab. Please select another company.', 'error');
+        return;
+      }
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Saving...';
