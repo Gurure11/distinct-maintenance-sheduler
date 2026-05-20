@@ -1046,7 +1046,10 @@
         // Google Sheets Configuration
         const SHEET_CONFIG = {
             spreadsheetId: '1UOOBScKX64TTIGQRyA89OeVPybIPw031eVhjpvHP7_c',
+            spreadsheetName: 'Distict',
             sheetName: 'Distinct',
+            maintenanceSheetName: 'Distinct',
+            licenceSheetName: 'Licence',
             driveFileId: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
         };
 
@@ -1093,7 +1096,7 @@
             `;
             
             try {
-                const url = `${APPS_SCRIPT_URL}?action=getData&search=${encodeURIComponent(searchTerm)}&filter=${encodeURIComponent(filterType)}&t=${Date.now()}`;
+                const url = `${APPS_SCRIPT_URL}?action=getData&search=${encodeURIComponent(searchTerm)}&filter=${encodeURIComponent(filterType)}&spreadsheetId=${encodeURIComponent(SHEET_CONFIG.spreadsheetId)}&spreadsheetName=${encodeURIComponent(SHEET_CONFIG.spreadsheetName)}&sheetName=${encodeURIComponent(SHEET_CONFIG.maintenanceSheetName)}&t=${Date.now()}`;
                 
                 const response = await fetch(url, {
                     method: 'GET',
@@ -1284,7 +1287,9 @@
                 reminderDate: document.getElementById('reminderDate').value,
                 totalCost: totalCost,
                 spreadsheetId: SHEET_CONFIG.spreadsheetId,
-                sheetName: SHEET_CONFIG.sheetName,
+                spreadsheetName: SHEET_CONFIG.spreadsheetName,
+                sheetName: SHEET_CONFIG.maintenanceSheetName,
+                licenceSheetName: SHEET_CONFIG.licenceSheetName,
                 driveFileId: SHEET_CONFIG.driveFileId
             };
         }
