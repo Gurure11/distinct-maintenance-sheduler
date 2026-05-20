@@ -508,14 +508,6 @@
                 width: 100%;
                 justify-content: center;
             }
-
-            .nav-button-row {
-                flex-wrap: wrap;
-            }
-
-            .nav-button {
-                width: 100%;
-            }
             
             .success-message, .error-message, .warning-message {
                 left: 20px;
@@ -554,75 +546,37 @@
         ::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
         }
-        .nav-button-row {
+        .nav-buttons{
             display: flex;
             align-items: center;
-            gap: 14px;
-            flex-wrap: nowrap;
-            margin: 0 0 25px 0;
-            overflow-x: auto;
-            padding-bottom: 6px;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
         }
 
-        .nav-button {
+        .fleet, .float, #lice{
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 13px 22px;
-            min-width: max-content;
+            padding: 12px 20px;
+            background: var(--secondary-color);
             color: white;
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            border: none;
-            border-radius: 12px;
             text-decoration: none;
-            font-size: 0.98em;
-            font-weight: 700;
-            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.32);
-            cursor: pointer;
-            transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            margin: 0;
         }
 
-        .nav-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 24px rgba(52, 152, 219, 0.42);
-            filter: brightness(1.05);
+        .fleet:hover, .float:hover, #lice:hover{
+            background: #2980b9;
+            color: white;
+            transform: translateY(-2px);
+            opacity: 1;
         }
-
-        .nav-button:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25);
-        }
-
-        .licence-summary-panel {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
-        }
-
-        .licence-summary-panel h3 {
-            margin-top: 0;
-        }
-
-        .country-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .country-chip {
-            background: white;
-            border: 1px solid #dbe3ee;
-            border-radius: 999px;
-            padding: 8px 13px;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
+    
 
         /* Fleet Management Upgrade - Service Alerts, Offroad Pool, Repair Costs */
         .fleet-upgrade-grid {
@@ -691,6 +645,19 @@
             margin-top: -15px;
             margin-bottom: 20px;
         }
+        #lice{
+            color: blue;
+            font-size: 20px;
+            margin-left: 50px;
+        }
+        #lice:hover{
+            color: green;
+            background-color: grey;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: 0.7s;
+        }
+
     </style>
 </head>
 <body>
@@ -710,12 +677,12 @@
             </div>
         </header>
 
-        <nav class="nav-button-row" aria-label="Report navigation">
-            <a class="nav-button" href="inspection.html" target="_blank"><i class="fas fa-clipboard-check"></i> Inspection Sheet</a>
-            <a class="nav-button" href="Fuel Card Policy_v1.2.pdf" target="_blank"><i class="fas fa-gas-pump"></i> Fuel Card Policy</a>
-            <a class="nav-button" href="licence.html"><i class="fas fa-id-card"></i> Licence Reports</a>
-            <a class="nav-button" href="inventory.html"><i class="fas fa-boxes-stacked"></i> Inventory Reports</a>
-        </nav>
+        <div class="nav-buttons">
+            <a class="fleet" href="inspection.html" targert="_blank">Inspection Sheet</a>
+            <a class="float" href="Fuel Card Policy_v1.2.pdf" target="_blank">Fuel Card Policy</a>
+            <a id="lice" href="licence.html">Licence Reports</a>
+            <a id="lice" href="inventory.html">Inventory Reports</a>
+        </div>
 
         <!-- Dashboard Section -->
         <section class="dashboard">
@@ -788,21 +755,6 @@
                         <h3>Repair Costs</h3>
                         <p id="repairCostTotal">R0</p>
                     </div>
-                </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);">
-                    <i class="fas fa-id-card"></i>
-                    <div class="stat-info">
-                        <h3>Registered Licences</h3>
-                        <p id="totalRegisteredLicences">0</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="licence-summary-panel">
-                <h3><i class="fas fa-globe-africa"></i> Licence Issue Country Summary</h3>
-                <p>Total registered licences: <strong id="licenceSummaryTotal">0</strong></p>
-                <div id="licenceCountryList" class="country-list">
-                    <span class="country-chip">No licence countries loaded yet</span>
                 </div>
             </div>
 
@@ -1082,31 +1034,6 @@
                 </div>
             </form>
         </section>
-
-        <section class="dashboard" id="allTransactionsSection">
-            <h2><i class="fas fa-list"></i> All Transactions To Date</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Job Card No.</th>
-                            <th>Make/Model</th>
-                            <th>Date</th>
-                            <th>Odometer</th>
-                            <th>Registration</th>
-                            <th>Defect</th>
-                            <th>Action</th>
-                            <th>Technician</th>
-                            <th>Completion Date</th>
-                            <th>Total Cost</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsBody">
-                        <tr><td colspan="10" style="text-align:center; padding:30px;">Transactions will appear here after data loads.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
     </div>
 
     <script>
@@ -1123,8 +1050,6 @@
             driveFileId: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
         };
 
-        let latestMaintenanceRecords = [];
-
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
             // Set today's date as default
@@ -1139,7 +1064,6 @@
             
             // Load existing data from Google Sheets
             fetchData();
-            fetchLicenceSummary();
             
             // Form submission handler
             document.getElementById('maintenanceForm').addEventListener('submit', handleSubmit);
@@ -1220,9 +1144,6 @@
         function displayData(records) {
             const tbody = document.getElementById('tableBody');
             
-            latestMaintenanceRecords = records || [];
-            displayAllTransactions(latestMaintenanceRecords);
-
             if (!records || records.length === 0) {
                 tbody.innerHTML = `
                     <tr>
@@ -1259,72 +1180,6 @@
                 `;
                 tbody.appendChild(tr);
             });
-        }
-
-        function displayAllTransactions(records) {
-            const tbody = document.getElementById('transactionsBody');
-            if (!tbody) return;
-
-            if (!records || records.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:30px;">No transactions to date.</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = '';
-            records.forEach(record => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${escapeHtml(record.jobCard || record.jobCardNo || '')}</strong></td>
-                    <td>${escapeHtml(record.makeModel || '')}</td>
-                    <td>${formatDate(record.date)}</td>
-                    <td>${record.odometer ? Number(record.odometer).toLocaleString() + ' km' : ''}</td>
-                    <td><span style="background: var(--light-bg); padding: 4px 8px; border-radius: 4px; font-weight: 600;">${escapeHtml(record.registration || '')}</span></td>
-                    <td>${escapeHtml(record.defect || record.reportedDefect || '')}</td>
-                    <td>${escapeHtml(record.action || record.completedAction || '')}</td>
-                    <td>${escapeHtml(record.technician || '')}</td>
-                    <td>${formatDate(record.completionDate)}</td>
-                    <td><strong>${formatCurrency(record.totalCost || record.totalRepairCost || 0)}</strong></td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        async function fetchLicenceSummary() {
-            try {
-                const response = await fetch(`${APPS_SCRIPT_URL}?action=getLicences&t=${Date.now()}`, { method: 'GET', mode: 'cors' });
-                const result = await response.json();
-                if (!result.success) throw new Error(result.error || 'Could not load licences');
-                updateLicenceSummary(result.data || []);
-            } catch (error) {
-                updateLicenceSummary([]);
-            }
-        }
-
-        function updateLicenceSummary(records) {
-            const total = records.length || 0;
-            const countryCounts = {};
-
-            records.forEach(record => {
-                const country = record.issueCountry || record.country || record.licenceIssueCountry || record.issuedCountry || 'Not specified';
-                countryCounts[country] = (countryCounts[country] || 0) + 1;
-            });
-
-            const totalCard = document.getElementById('totalRegisteredLicences');
-            const totalPanel = document.getElementById('licenceSummaryTotal');
-            const countryList = document.getElementById('licenceCountryList');
-
-            if (totalCard) totalCard.textContent = total;
-            if (totalPanel) totalPanel.textContent = total;
-
-            if (!countryList) return;
-            const countries = Object.entries(countryCounts);
-            if (!countries.length) {
-                countryList.innerHTML = '<span class="country-chip">No licence countries loaded yet</span>';
-                return;
-            }
-
-            countryList.innerHTML = countries
-                .map(([country, count]) => `<span class="country-chip">${escapeHtml(country)}: ${count}</span>`)
-                .join('');
         }
 
         // Update statistics display
@@ -1371,7 +1226,6 @@
                 
                 if (result.success) {
                     showMessage('✅ Maintenance record saved to Google Sheets successfully!', 'success');
-                    alert('Successfully saved.');
                     
                     // Reset form
                     resetForm();
@@ -1764,7 +1618,6 @@
                 const result = await response.json();
                 if (!result.success) throw new Error(result.error || 'Could not save pool vehicle');
                 showMessage('Offroad vehicle saved to Pool sheet.', 'success');
-                alert('Successfully saved.');
                 document.getElementById('poolForm').reset();
                 fetchPoolData();
             } catch (error) {
