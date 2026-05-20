@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Licence Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header {
+      background: #111827;
+      color: white;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 18px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .header p {
+      margin-bottom: 0;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .status-card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .status-title {
+      padding: 14px 16px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .orange { background: #f97316; }
+    .red { background: #dc2626; }
+
+    .status-body {
+      padding: 14px 16px;
+      min-height: 80px;
+    }
+
+    .person {
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .person:last-child {
+      border-bottom: none;
+    }
+
+    .empty {
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .form-card h2 {
+      margin-top: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 18px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Licence Dashboard</h1>
+      <p>Distinct licence data entry and expiry monitoring</p>
+    </div>
+
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="status-title orange">Licence About To Expire</div>
+        <div class="status-body" id="aboutToExpireBox">Loading...</div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-title red">Licence Expired</div>
+        <div class="status-body" id="expiredBox">Loading...</div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Enter Licence Details</h2>
+      <form id="licenceForm">
+        <div class="form-grid">
+          <div>
+            <label>Name</label>
+            <input name="name" required>
+          </div>
+
+          <div>
+            <label>Surname</label>
+            <input name="surname" required>
+          </div>
+
+          <div>
+            <label>Licence Number</label>
+            <input name="licenceNumber" required>
+          </div>
+
+          <div>
+            <label>Country of Issue</label>
+            <input name="countryOfIssue" value="South Africa" required>
+          </div>
+
+          <div>
+            <label>Company</label>
+            <input name="company" value="Distinct" required>
+          </div>
+
+          <div>
+            <label>Department</label>
+            <input name="department" required>
+          </div>
+
+          <div>
+            <label>Licence Type</label>
+            <input name="licenceType" required>
+          </div>
+
+          <div>
+            <label>Validity</label>
+            <input name="validity" type="date" required>
+          </div>
+
+          <div>
+            <label>First Issue</label>
+            <input name="firstIssue" type="date" required>
+          </div>
+
+          <div>
+            <label>Vehicle Restrictions</label>
+            <input name="vehicleRestrictions" required>
+          </div>
+        </div>
+
+        <button id="submitBtn" type="submit">Save Licence</button>
+        <div id="message" class="message"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEC6RYcQHmdpvaW9_hWJ0imc9_e-ybG83QGuymG1wDhSXGG4q6kUmoiQ0SsU3ghdzZxw/exec';
+
+    document.addEventListener('DOMContentLoaded', loadStatus);
+
+    document.getElementById('licenceForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('submitBtn');
+      const formData = Object.fromEntries(new FormData(e.target).entries());
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(formData),
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          }
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.message || 'Could not save record.');
+        }
+
+        showMessage(result.message || 'Saved successfully.', 'success');
+        e.target.reset();
+        e.target.countryOfIssue.value = 'South Africa';
+        e.target.company.value = 'Distinct';
+        loadStatus();
+      } catch (error) {
+        showMessage(error.message || 'Could not save record.', 'error');
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Save Licence';
+    });
+
+    async function loadStatus() {
+      try {
+        const response = await fetch(SCRIPT_URL + '?action=status');
+        const data = await response.json();
+        renderStatus(data);
+      } catch (error) {
+        document.getElementById('aboutToExpireBox').innerHTML = '<div class="empty">Could not load status.</div>';
+        document.getElementById('expiredBox').innerHTML = '<div class="empty">Could not load status.</div>';
+      }
+    }
+
+    function renderStatus(data) {
+      renderPeople('aboutToExpireBox', data.aboutToExpire, 'No licences about to expire.');
+      renderPeople('expiredBox', data.expired, 'No expired licences.');
+    }
+
+    function renderPeople(elementId, people, emptyText) {
+      const box = document.getElementById(elementId);
+
+      if (!people || people.length === 0) {
+        box.innerHTML = '<div class="empty">' + emptyText + '</div>';
+        return;
+      }
+
+      box.innerHTML = people.map(function(p) {
+        return '<div class="person">' +
+          '<strong>' + escapeHtml(p.name) + ' ' + escapeHtml(p.surname) + '</strong><br>' +
+          'Licence: ' + escapeHtml(p.licenceNumber) + '<br>' +
+          'Company: ' + escapeHtml(p.company) + '<br>' +
+          'Department: ' + escapeHtml(p.department) + '<br>' +
+          'Type: ' + escapeHtml(p.licenceType) + '<br>' +
+          'Validity: ' + escapeHtml(p.validity) + '<br>' +
+          'Days remaining: ' + escapeHtml(String(p.daysRemaining)) +
+        '</div>';
+      }).join('');
+    }
+
+    function showMessage(text, type) {
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.className = 'message ' + type;
+      msg.style.display = 'block';
+
+      setTimeout(function() {
+        msg.style.display = 'none';
+      }, 4000);
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
