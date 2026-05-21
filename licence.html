@@ -153,6 +153,29 @@
       background: #fee2e2;
       color: #991b1b;
     }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      background: #fff;
+      min-height: 42px;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .file-note {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 5px;
+    }
+
   </style>
 </head>
 <body>
@@ -279,6 +302,37 @@
             <label>Vehicle Restrictions</label>
             <input name="vehicleRestrictions" required>
           </div>
+
+          <div>
+            <label>Other Licence</label>
+            <select name="otherLicence">
+              <option value="" selected>Select other licence</option>
+              <option>Operator</option>
+              <option>FE Loader OP Licence</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Upload Licence</label>
+            <input id="licenceUpload" name="licenceUpload" type="file" accept="image/*,.pdf" capture="environment">
+            <div class="file-note">Uploads to Google Drive and saves a clickable link in the Licence sheet tab.</div>
+          </div>
+
+          <div>
+            <label>Fleet Card Policy</label>
+            <div class="checkbox-row">
+              <input id="fleetCardPolicyIssuedSigned" name="fleetCardPolicyIssuedSigned" type="checkbox" value="Issued / Signed">
+              <span>Issued or Signed</span>
+            </div>
+          </div>
+
+          <div>
+            <label>Fleet Policy</label>
+            <div class="checkbox-row">
+              <input id="fleetPolicyIssuedSigned" name="fleetPolicyIssuedSigned" type="checkbox" value="Issued / Signed">
+              <span>Issued or Signed</span>
+            </div>
+          </div>
         </div>
 
         <button id="submitBtn" type="submit">Save Licence</button>
@@ -309,7 +363,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmxauyzDJbCRtCRE5bXeYvGhqQ8RxfYfa41rUgeh7_p2Au68dWTf0xxv7ur8DnnE1Czw/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyJ_P30xmpoHKy4oncU-Stvirom02TwxNBONOjIU0qYMxD_isT8SUUFybeGju2QUJf/exec';
 
     document.addEventListener('DOMContentLoaded', function() {
       loadStatus();
@@ -353,17 +407,30 @@
       e.preventDefault();
 
       const submitBtn = document.getElementById('submitBtn');
-      const formData = Object.fromEntries(new FormData(e.target).entries());
+      const rawFormData = new FormData(e.target);
+      const formData = Object.fromEntries(rawFormData.entries());
+      delete formData.licenceUpload;
+      formData.fleetCardPolicyIssuedSigned = document.getElementById('fleetCardPolicyIssuedSigned').checked ? 'Issued / Signed' : '';
+      formData.fleetPolicyIssuedSigned = document.getElementById('fleetPolicyIssuedSigned').checked ? 'Issued / Signed' : '';
 
       if (formData.company === 'Distinct') {
         showMessage('Records are no longer sent to the Distinct sheet tab. Please select another company.', 'error');
         return;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Saving...';
+      const licenceFile = document.getElementById('licenceUpload').files[0];
 
-      callServer('submitLicence', formData)
+      submitBtn.disabled = true;
+      submitBtn.textContent = licenceFile ? 'Uploading licence...' : 'Saving...';
+
+      readLicenceFile(licenceFile)
+        .then(function(filePayload) {
+          if (filePayload) {
+            formData.licenceFile = filePayload;
+          }
+          submitBtn.textContent = 'Saving...';
+          return callServer('submitLicence', formData);
+        })
         .then(function(result) {
           if (!result || !result.success) {
             showMessage((result && result.message) || 'Could not save record.', 'error');
@@ -504,6 +571,33 @@
           'Vehicle Restrictions: ' + escapeHtml(p.vehicleRestrictions) +
         '</div>';
       }).join('');
+    }
+
+    function readLicenceFile(file) {
+      if (!file) {
+        return Promise.resolve(null);
+      }
+
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+          const result = String(event.target.result || '');
+          const parts = result.split(',');
+
+          resolve({
+            name: file.name,
+            mimeType: file.type || 'application/octet-stream',
+            data: parts.length > 1 ? parts[1] : result
+          });
+        };
+
+        reader.onerror = function() {
+          reject(new Error('Could not read uploaded licence file.'));
+        };
+
+        reader.readAsDataURL(file);
+      });
     }
 
     function showMessage(text, type) {
