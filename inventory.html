@@ -249,6 +249,47 @@
     .table-wrap {
       overflow-x: auto;
     }
+
+    .secondary {
+      background: var(--green);
+    }
+
+    .secondary:hover {
+      background: #15803d;
+    }
+
+    .report-only {
+      display: none;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      body.print-report .app > *:not(#inventoryPdfReport) {
+        display: none !important;
+      }
+
+      body.print-report #inventoryPdfReport {
+        display: block !important;
+      }
+
+      #inventoryPdfReport {
+        padding: 20px;
+      }
+
+      #inventoryPdfReport table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #inventoryPdfReport th,
+      #inventoryPdfReport td {
+        border: 1px solid #d1d5db;
+        padding: 8px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -274,6 +315,10 @@
       <div class="stat">
         <span>Low Stock Alerts</span>
         <strong id="lowStockCount">0</strong>
+      </div>
+      <div class="stat">
+        <span>Total Stock Value</span>
+        <strong id="totalStockValue">R0.00</strong>
       </div>
     </div>
 
@@ -366,6 +411,9 @@
             <label>Reference Number</label>
             <input name="referenceNumber" placeholder="Invoice, job card, requisition">
 
+            <label>Amount / Value of Stock Entered</label>
+            <input name="stockValue" type="number" min="0" step="0.01" placeholder="0.00">
+
             <label>Description</label>
             <textarea name="description"></textarea>
 
@@ -382,7 +430,10 @@
         <div class="card">
           <div class="section-title">
             <h2>Inventory Search</h2>
-            <button type="button" onclick="refreshAll()">Refresh</button>
+            <div class="toolbar">
+              <button type="button" class="secondary" onclick="downloadInventoryReport()">Download Inventory Report</button>
+              <button type="button" onclick="refreshAll()">Refresh</button>
+            </div>
           </div>
 
           <div class="toolbar">
@@ -411,11 +462,12 @@
                   <th>Part / Model</th>
                   <th>Location</th>
                   <th>Current Stock</th>
+                  <th>Stock Value</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody id="inventoryTable">
-                <tr><td colspan="6">Loading inventory...</td></tr>
+                <tr><td colspan="7">Loading inventory...</td></tr>
               </tbody>
             </table>
           </div>
@@ -464,10 +516,12 @@
         </div>
       </div>
     </div>
+
+    <div id="inventoryPdfReport" class="report-only"></div>
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzPt2xAmTrxq2GbIj2MOvOPNx7uMxLP3vVbXFZdnmqxJhy-seMEM_oVBoyJFFV9PFSX/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxl8AmbRO2CziCRTtppLoQWS6ExhA6tdpU7O0gEdPy2LZnWn5LFJ3wq9k1aSBVFNSNk/exec';
 
     let inventoryItems = [];
 
@@ -531,10 +585,11 @@
 
         inventoryItems = data.items || [];
         renderInventoryTable();
+        document.getElementById('totalStockValue').textContent = formatCurrency(getTotalInventoryValue());
 
       } catch (error) {
         document.getElementById('inventoryTable').innerHTML =
-          '<tr><td colspan="6">Could not load inventory.</td></tr>';
+          '<tr><td colspan="7">Could not load inventory.</td></tr>';
       }
     }
 
@@ -549,6 +604,7 @@
         document.getElementById('totalStockIn').textContent = summary.totalStockIn || 0;
         document.getElementById('totalStockOut').textContent = summary.totalStockOut || 0;
         document.getElementById('lowStockCount').textContent = summary.lowStockCount || 0;
+        document.getElementById('totalStockValue').textContent = formatCurrency(summary.totalStockValue || getTotalInventoryValue());
 
         renderReportTable(data.transactions || []);
         renderLowStockTable(data.lowStockItems || []);
@@ -575,7 +631,8 @@
           item.brand,
           item.modelPartNumber,
           item.description,
-          item.location
+          item.location,
+          item.stockValue
         ].join(' ').toLowerCase();
 
         const searchMatch = !search || text.includes(search);
@@ -590,7 +647,7 @@
 
       if (rows.length === 0) {
         document.getElementById('inventoryTable').innerHTML =
-          '<tr><td colspan="6">No inventory items found.</td></tr>';
+          '<tr><td colspan="7">No inventory items found.</td></tr>';
         return;
       }
 
@@ -608,6 +665,7 @@
             <td>${escapeHtml(item.modelPartNumber)}<br><span class="small">${escapeHtml(item.brand)}</span></td>
             <td>${escapeHtml(item.location)}</td>
             <td><strong>${escapeHtml(String(item.currentStock))}</strong> ${escapeHtml(item.unit || '')}</td>
+            <td>${escapeHtml(formatCurrency(getItemStockValue(item)))}</td>
             <td><span class="badge ${statusClass}">${statusText}</span></td>
           </tr>
         `;
@@ -655,6 +713,79 @@
           </tr>
         `;
       }).join('');
+    }
+
+
+    function getItemStockValue(item) {
+      return parseMoney(item.stockValue || item.amountValue || 0);
+    }
+
+    function getTotalInventoryValue() {
+      return inventoryItems.reduce(function(total, item) {
+        return total + getItemStockValue(item);
+      }, 0);
+    }
+
+    function parseMoney(value) {
+      const cleaned = String(value || '0').replace(/[^0-9.-]/g, '');
+      const amount = Number(cleaned);
+      return Number.isFinite(amount) ? amount : 0;
+    }
+
+    function formatCurrency(value) {
+      return 'R' + Number(value || 0).toLocaleString('en-ZA', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function downloadInventoryReport() {
+      const reportDate = new Date().toLocaleString('en-ZA');
+      const totalValue = getTotalInventoryValue();
+      const rows = inventoryItems.map(function(item) {
+        return `
+          <tr>
+            <td>${escapeHtml(item.itemId)}</td>
+            <td>${escapeHtml(item.itemName)}</td>
+            <td>${escapeHtml(item.category)}</td>
+            <td>${escapeHtml(item.modelPartNumber)}</td>
+            <td>${escapeHtml(item.location)}</td>
+            <td>${escapeHtml(String(item.currentStock || 0))} ${escapeHtml(item.unit || '')}</td>
+            <td>${escapeHtml(formatCurrency(getItemStockValue(item)))}</td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('inventoryPdfReport').innerHTML = `
+        <h1>Inventory Report</h1>
+        <p><strong>Generated:</strong> ${escapeHtml(reportDate)}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Item ID</th>
+              <th>Item Name</th>
+              <th>Category</th>
+              <th>Part / Model</th>
+              <th>Location</th>
+              <th>Current Stock</th>
+              <th>Stock Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || '<tr><td colspan="7">No inventory items found.</td></tr>'}
+            <tr>
+              <td colspan="6"><strong>Total Stock Inventory Value</strong></td>
+              <td><strong>${escapeHtml(formatCurrency(totalValue))}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      document.body.classList.add('print-report');
+      window.print();
+      setTimeout(function() {
+        document.body.classList.remove('print-report');
+      }, 500);
     }
 
     function showMessage(text, type) {
