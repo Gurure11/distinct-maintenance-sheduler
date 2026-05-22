@@ -477,6 +477,50 @@
             font-weight: bold;
         }
 
+
+
+        .action-narration, .defect-narration {
+            max-width: 260px;
+            line-height: 1.4;
+        }
+
+        .action-preview, .defect-preview {
+            display: inline;
+        }
+
+        .action-full, .defect-full {
+            display: none;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .action-narration.expanded .action-preview,
+        .defect-narration.expanded .defect-preview {
+            display: none;
+        }
+
+        .action-narration.expanded .action-full,
+        .defect-narration.expanded .defect-full {
+            display: inline;
+        }
+
+        .btn-more-action, .btn-more-defect {
+            margin-left: 6px;
+            padding: 3px 8px;
+            border: none;
+            border-radius: 999px;
+            background: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            font-size: 0.78em;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .btn-more-action:hover, .btn-more-defect:hover {
+            background: #2980b9;
+        }
+
         @media (max-width: 768px) {
             .logo-container {
                 flex-direction: column;
@@ -777,11 +821,12 @@
                             <th>Completion Date</th>
                             <th>Breakdown #</th>
                             <th>Total Repair Cost</th>
+                            <th>Edit</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="12" style="text-align: center; padding: 40px;">
+                            <td colspan="13" style="text-align: center; padding: 40px;">
                                 <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: var(--secondary-color);"></i>
                                 <br>Loading data from Google Sheets...
                             </td>
@@ -1141,6 +1186,7 @@
             'MK85PWGP'
         ];
         let registrationNumbers = [...DEFAULT_REGISTRATION_NUMBERS];
+        let editingMaintenanceRecord = null;
 
         function updateRegistrationOptions() {
             // Use the same fixed option list in both sections.
@@ -1192,7 +1238,7 @@
             // Show loading state
             document.getElementById('tableBody').innerHTML = `
                 <tr>
-                    <td colspan="12" style="text-align: center; padding: 40px;">
+                    <td colspan="13" style="text-align: center; padding: 40px;">
                         <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: var(--secondary-color);"></i>
                         <br>Fetching data from Google Sheets...
                     </td>
@@ -1255,7 +1301,7 @@
             if (!records || records.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="12" style="text-align: center; padding: 40px;">
+                        <td colspan="13" style="text-align: center; padding: 40px;">
                             <i class="fas fa-folder-open" style="font-size: 2em; color: var(--secondary-color);"></i>
                             <br>No maintenance records found
                         </td>
@@ -1266,7 +1312,7 @@
             
             tbody.innerHTML = '';
             
-            records.forEach(record => {
+            records.forEach((record, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${escapeHtml(record.jobCard || '')}</strong></td>
@@ -1274,8 +1320,8 @@
                     <td>${formatDate(record.date)}</td>
                     <td>${record.odometer ? Number(record.odometer).toLocaleString() + ' km' : ''}</td>
                     <td><span style="background: var(--light-bg); padding: 4px 8px; border-radius: 4px; font-weight: 600;">${escapeHtml(record.registration || '')}</span></td>
-                    <td>${escapeHtml(record.defect || '')}</td>
-                    <td>${escapeHtml(record.action || '')}</td>
+                    <td>${formatDefectNarration(record.defect || '')}</td>
+                    <td>${formatActionNarration(record.action || '')}</td>
                     <td>${record.nextService ? Number(record.nextService).toLocaleString() + ' km' : ''}</td>
                     <td>${escapeHtml(record.technician || '')}</td>
                     <td>${formatDate(record.completionDate)}</td>
@@ -1285,9 +1331,74 @@
                         </span>
                     </td>
                     <td><strong>${formatCurrency(record.totalCost || record.totalRepairCost || 0)}</strong></td>
+                    <td>
+                        <button type="button" class="btn-primary btn-small" onclick='editMaintenanceRecord(${JSON.stringify(record).replace(/'/g, "&#039;")})'>
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+
+
+        // Helper function: Format long defect text with a compact More/Less toggle
+        function formatDefectNarration(defectText) {
+            const text = String(defectText || '');
+            const limit = 90;
+
+            if (text.length <= limit) {
+                return escapeHtml(text);
+            }
+
+            const preview = text.slice(0, limit).trimEnd() + '...';
+            const uniqueId = 'defect-' + Math.random().toString(36).slice(2, 10);
+
+            return `
+                <div class="defect-narration" id="${uniqueId}">
+                    <span class="defect-preview">${escapeHtml(preview)}</span>
+                    <span class="defect-full">${escapeHtml(text)}</span>
+                    <button type="button" class="btn-more-defect" onclick="toggleDefectNarration('${uniqueId}', this)">More</button>
+                </div>
+            `;
+        }
+
+        function toggleDefectNarration(id, button) {
+            const wrapper = document.getElementById(id);
+            if (!wrapper) return;
+
+            wrapper.classList.toggle('expanded');
+            button.textContent = wrapper.classList.contains('expanded') ? 'Less' : 'More';
+        }
+
+        // Helper function: Format long action narration with a compact More/Less toggle
+        function formatActionNarration(actionText) {
+            const text = String(actionText || '');
+            const limit = 90;
+
+            if (text.length <= limit) {
+                return escapeHtml(text);
+            }
+
+            const preview = text.slice(0, limit).trimEnd() + '...';
+            const uniqueId = 'action-' + Math.random().toString(36).slice(2, 10);
+
+            return `
+                <div class="action-narration" id="${uniqueId}">
+                    <span class="action-preview">${escapeHtml(preview)}</span>
+                    <span class="action-full">${escapeHtml(text)}</span>
+                    <button type="button" class="btn-more-action" onclick="toggleActionNarration('${uniqueId}', this)">More</button>
+                </div>
+            `;
+        }
+
+        function toggleActionNarration(id, button) {
+            const wrapper = document.getElementById(id);
+            if (!wrapper) return;
+
+            wrapper.classList.toggle('expanded');
+            button.textContent = wrapper.classList.contains('expanded') ? 'Less' : 'More';
         }
 
         // Update statistics display
@@ -1316,6 +1427,7 @@
             try {
                 // Collect form data
                 const formData = collectFormData();
+                const saveAction = editingMaintenanceRecord ? 'updateData' : 'addData';
                 
                 // Send to Google Apps Script
                 const response = await fetch(APPS_SCRIPT_URL, {
@@ -1325,7 +1437,7 @@
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
                     body: new URLSearchParams({
-                        action: 'addData',
+                        action: saveAction,
                         data: JSON.stringify(formData)
                     })
                 });
@@ -1333,7 +1445,7 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    showMessage('✅ Maintenance record saved to Google Sheets successfully!', 'success');
+                    showMessage(editingMaintenanceRecord ? '✅ Maintenance record updated in Google Sheets successfully!' : '✅ Maintenance record saved to Google Sheets successfully!', 'success');
                     
                     // Reset form
                     resetForm();
@@ -1375,7 +1487,9 @@
             const totalCost = document.getElementById('totalCost').value || '0';
             
             return {
-                timestamp: new Date().toISOString(),
+                rowNumber: editingMaintenanceRecord ? (editingMaintenanceRecord.rowNumber || editingMaintenanceRecord.row || editingMaintenanceRecord._row || '') : '',
+                originalJobCardNo: editingMaintenanceRecord ? (editingMaintenanceRecord.jobCard || editingMaintenanceRecord.jobCardNo || '') : '',
+                timestamp: editingMaintenanceRecord && editingMaintenanceRecord.timestamp ? editingMaintenanceRecord.timestamp : new Date().toISOString(),
                 jobCardNo: document.getElementById('jobCardNo').value,
                 makeModel: document.getElementById('makeModel').value,
                 date: document.getElementById('date').value,
@@ -1399,8 +1513,83 @@
             };
         }
 
+
+        // Load an existing maintenance record into the form for editing
+        function editMaintenanceRecord(record) {
+            editingMaintenanceRecord = record || {};
+
+            const setValue = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) element.value = value || '';
+            };
+
+            setValue('jobCardNo', record.jobCardNo || record.jobCard);
+            setValue('makeModel', record.makeModel);
+            setValue('date', normalizeInputDate(record.date));
+            setValue('odometer', record.odometer);
+            setValue('registration', record.registration);
+            setValue('reportedDefect', record.reportedDefect || record.defect);
+            setValue('completedAction', record.completedAction || record.action);
+            setValue('laborHours', record.laborHours || '0');
+            setValue('comments', record.comments);
+            setValue('nextService', record.nextService);
+            setValue('technician', record.technician);
+            setValue('completionDate', normalizeInputDate(record.completionDate));
+            setValue('reminderDate', normalizeInputDate(record.reminderDate));
+            setValue('totalCost', record.totalCost || record.totalRepairCost || '0');
+
+            loadPartsForEditing(record.parts);
+
+            const submitBtn = document.querySelector('#maintenanceForm .btn-submit');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Maintenance Record<span class="loading-spinner" style="display: none;"></span>';
+            }
+
+            document.getElementById('newVehicleMaintenanceRecord').scrollIntoView({ behavior: 'smooth' });
+            showMessage('Record loaded. Edit any section and submit to update Google Sheets.', 'warning');
+        }
+
+        function normalizeInputDate(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (isNaN(date.getTime())) return String(value).split('T')[0];
+            return date.toISOString().split('T')[0];
+        }
+
+        function loadPartsForEditing(partsValue) {
+            const partsBody = document.getElementById('partsBody');
+            let parts = [];
+            try {
+                parts = typeof partsValue === 'string' ? JSON.parse(partsValue || '[]') : (partsValue || []);
+            } catch (error) {
+                parts = [];
+            }
+
+            if (!Array.isArray(parts) || !parts.length) {
+                parts = [{ number: '', description: '', quantity: '1', price: '0', total: '0' }];
+            }
+
+            partsBody.innerHTML = parts.map(part => `
+                <tr class="part-row">
+                    <td><input type="text" class="part-number" placeholder="Part #" value="${escapeHtml(part.number || '')}"></td>
+                    <td><input type="text" class="part-desc" placeholder="Description" value="${escapeHtml(part.description || '')}"></td>
+                    <td><input type="number" class="part-qty" value="${escapeHtml(String(part.quantity || '1'))}" min="1"></td>
+                    <td><input type="number" class="part-price" value="${escapeHtml(String(part.price || '0'))}" min="0" step="0.01"></td>
+                    <td><input type="number" class="part-total" value="${escapeHtml(String(part.total || '0'))}" min="0" step="0.01"></td>
+                    <td style="text-align: center;">
+                        <button type="button" onclick="removePartRow(this)" class="btn-remove">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
         // Reset form after submission
         function resetForm() {
+            editingMaintenanceRecord = null;
+            const submitText = document.querySelector('#maintenanceForm .btn-submit');
+            if (submitText) submitText.innerHTML = '<i class="fas fa-save"></i> Submit Maintenance Record<span class="loading-spinner" style="display: none;"></span>';
             document.getElementById('maintenanceForm').reset();
             
             // Reset date fields
