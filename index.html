@@ -902,10 +902,11 @@
                             <th>Estimated Cost</th>
                             <th>Total Repair Cost</th>
                             <th>Update Cost</th>
+                            <th>Fixed / Remove</th>
                         </tr>
                     </thead>
                     <tbody id="poolBody">
-                        <tr><td colspan="11" style="text-align:center; padding:30px;">Loading offroad vehicle pool...</td></tr>
+                        <tr><td colspan="12" style="text-align:center; padding:30px;">Loading offroad vehicle pool...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1655,7 +1656,7 @@
                 displayPoolData(result.data || []);
                 updatePoolStats(result.data || []);
             } catch (error) {
-                tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:30px; color:#e74c3c;">${escapeHtml(error.message)}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding:30px; color:#e74c3c;">${escapeHtml(error.message)}</td></tr>`;
             }
         }
 
@@ -1663,7 +1664,7 @@
             updateRegistrationOptions(records || []);
             const tbody = document.getElementById('poolBody');
             if (!records.length) {
-                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:30px;">No offroad vehicles in the pool.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="12" style="text-align:center; padding:30px;">No offroad vehicles in the pool.</td></tr>';
                 return;
             }
             tbody.innerHTML = '';
@@ -1684,6 +1685,11 @@
                     <td>
                         <input class="cost-input" id="cost-${escapeHtml(record.poolId || '')}" type="number" min="0" step="0.01" value="${Number(record.totalRepairCost || 0)}">
                         <button class="btn-primary btn-small" onclick="updatePoolRepairCost('${escapeHtml(record.poolId || '')}')"><i class="fas fa-save"></i></button>
+                    </td>
+                    <td>
+                        <button class="btn-danger btn-small" onclick="removeFixedPoolVehicle('${escapeHtml(record.poolId || '')}', '${escapeHtml(record.registration || '')}')">
+                            <i class="fas fa-check"></i> Fixed
+                        </button>
                     </td>`;
                 tbody.appendChild(tr);
             });
@@ -1752,6 +1758,41 @@
                 fetchPoolData();
             } catch (error) {
                 showMessage('Cost update error: ' + error.message, 'error');
+            }
+        }
+
+        async function removeFixedPoolVehicle(poolId, registration) {
+            if (!poolId) {
+                showMessage('Could not remove vehicle: missing Pool ID.', 'error');
+                return;
+            }
+
+            const confirmMessage = registration
+                ? `Remove ${registration} from the Serious Breakdown Pool because it has been fixed?`
+                : 'Remove this vehicle from the Serious Breakdown Pool because it has been fixed?';
+
+            if (!confirm(confirmMessage)) return;
+
+            try {
+                showMessage('Removing fixed vehicle from Pool sheet...', 'warning');
+
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST', mode: 'cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'removePoolVehicle',
+                        poolId: poolId,
+                        registration: registration || ''
+                    })
+                });
+
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'Could not remove vehicle from Pool sheet');
+
+                showMessage('Fixed vehicle removed from Serious Breakdown Pool.', 'success');
+                fetchPoolData();
+            } catch (error) {
+                showMessage('Remove vehicle error: ' + error.message, 'error');
             }
         }
 
