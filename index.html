@@ -639,7 +639,7 @@
             margin: 20px 0;
         }
 
-        .fleet, .float, #lice{
+        .fleet, .float, .nav-link-special{
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -655,7 +655,7 @@
             margin: 0;
         }
 
-        .fleet:hover, .float:hover, #lice:hover{
+        .fleet:hover, .float:hover, .nav-link-special:hover{
             background: #2980b9;
             color: white;
             transform: translateY(-2px);
@@ -730,12 +730,12 @@
             margin-top: -15px;
             margin-bottom: 20px;
         }
-        #lice{
+        .nav-link-special{
             color: blue;
             font-size: 20px;
             margin-left: 50px;
         }
-        #lice:hover{
+        .nav-link-special:hover{
             color: green;
             background-color: grey;
             cursor: pointer;
@@ -763,10 +763,10 @@
         </header>
 
         <div class="nav-buttons">
-            <a class="fleet" href="inspection.html" targert="_blank">Inspection Sheet</a>
+            <a class="fleet" href="inspection.html" target="_blank">Inspection Sheet</a>
             <a class="float" href="Fuel Card Policy_v1.2.pdf" target="_blank">Fuel Card Policy</a>
-            <a id="lice" href="#seriousBreakdownPool">Serious Breakdown Pool</a>
-            <a id="lice" href="#newVehicleMaintenanceRecord">New Vehicle Maintenance Record</a>
+            <a class="nav-link-special" href="#seriousBreakdownPool">Serious Breakdown Pool</a>
+            <a class="nav-link-special" href="#newVehicleMaintenanceRecord">New Vehicle Maintenance Record</a>
         </div>
 
         <!-- Dashboard Section -->
@@ -787,6 +787,9 @@
                 </button>
                 <button onclick="exportToCSV()" class="btn-primary" style="background: var(--success-color);">
                     <i class="fas fa-download"></i> Export
+                </button>
+                <button onclick="testGoogleConnection()" class="btn-primary" style="background: #7c3aed;">
+                    <i class="fas fa-plug"></i> Test Connection
                 </button>
             </div>
 
@@ -1146,7 +1149,7 @@
         // GOOGLE APPS SCRIPT WEB APP URL
         // REPLACE THIS WITH YOUR DEPLOYED APPS SCRIPT URL
         // =============================================
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXzyWvfXJKHXgWUSmMOo_Gt_IyB5YPBmaz92a3tgIJJQ2aThQ2ItgDQfzqpXNuXvzZBQ/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2-svMdaUEVzPs9SAm8jpNKsN46i0nkgvUYayoOBzjro3GjdkJVNzhuWTsL4CABHSJ7A/exec';
         
         // Google Sheets Configuration
         const SHEET_CONFIG = {
@@ -1157,6 +1160,120 @@
             licenceSheetName: 'Licence',
             driveFileId: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
         };
+
+
+        const REQUEST_TIMEOUT_MS = 30000;
+
+        function buildAppsScriptUrl(params = {}) {
+            const url = new URL(APPS_SCRIPT_URL);
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) url.searchParams.set(key, value);
+            });
+            url.searchParams.set('t', Date.now().toString());
+            return url.toString();
+        }
+
+        async function fetchJsonWithTimeout(url, options = {}) {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    mode: 'cors',
+                    redirect: 'follow',
+                    signal: controller.signal
+                });
+
+                const text = await response.text();
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${text.slice(0, 200) || response.statusText}`);
+                }
+
+                try {
+                    return JSON.parse(text);
+                } catch (error) {
+                    throw new Error(`Apps Script did not return JSON. Response started with: ${text.slice(0, 120)}`);
+                }
+            } finally {
+                clearTimeout(timeout);
+            }
+        }
+
+        function fetchJsonp(params = {}) {
+            return new Promise((resolve, reject) => {
+                const callbackName = `appsScriptCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+                const script = document.createElement('script');
+                const timeout = setTimeout(() => {
+                    cleanup();
+                    reject(new Error('Connection timed out while using JSONP fallback. Check Web App access is set to Anyone.'));
+                }, REQUEST_TIMEOUT_MS);
+
+                function cleanup() {
+                    clearTimeout(timeout);
+                    delete window[callbackName];
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                }
+
+                window[callbackName] = payload => {
+                    cleanup();
+                    resolve(payload);
+                };
+
+                script.onerror = () => {
+                    cleanup();
+                    reject(new Error('Could not load Apps Script JSONP endpoint. Check the /exec URL and deployment access.'));
+                };
+
+                script.src = buildAppsScriptUrl({ ...params, callback: callbackName });
+                document.body.appendChild(script);
+            });
+        }
+
+        async function appsScriptGet(params = {}) {
+            const url = buildAppsScriptUrl(params);
+            try {
+                return await fetchJsonWithTimeout(url, { method: 'GET' });
+            } catch (fetchError) {
+                console.warn('GET fetch failed; trying JSONP fallback:', fetchError);
+                return await fetchJsonp(params);
+            }
+        }
+
+        async function appsScriptPost(params = {}) {
+            return await fetchJsonWithTimeout(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: new URLSearchParams(params).toString()
+            });
+        }
+
+        async function testGoogleConnection() {
+            showMessage('Testing Google Sheets connection...', 'warning');
+            try {
+                const result = await appsScriptGet({ action: 'ping' });
+                if (!result.success) throw new Error(result.error || 'Ping failed');
+                showMessage(`Connection OK. Spreadsheet: ${result.spreadsheetName || 'opened successfully'}`, 'success');
+                console.log('Apps Script ping result:', result);
+            } catch (error) {
+                console.error('Connection test failed:', error);
+                showMessage('Connection failed: ' + getFriendlyError(error), 'error');
+            }
+        }
+
+        function getFriendlyError(error) {
+            const message = String(error && error.message ? error.message : error || 'Unknown error');
+            if (message.includes('Failed to fetch') || message.includes('Load failed')) {
+                return 'Browser could not reach Apps Script. Redeploy the Web App with access set to Anyone and paste the latest /exec URL.';
+            }
+            if (message.includes('Unexpected token') || message.includes('did not return JSON')) {
+                return 'Apps Script returned HTML instead of JSON. This usually means the Web App URL is wrong, expired, or requires sign-in.';
+            }
+            if (message.includes('Authorization') || message.includes('permission')) {
+                return 'Apps Script permissions are missing. Run setupDistinctHireBackend() in Apps Script and authorize it.';
+            }
+            return message;
+        }
 
         // Do not move these existing Google Sheet headings.
         // Extra photo link columns are appended after Service Status only.
@@ -1315,8 +1432,7 @@
         async function fetchData() {
             const searchTerm = document.getElementById('searchInput').value;
             const filterType = document.getElementById('filterType').value;
-            
-            // Show loading state
+
             document.getElementById('tableBody').innerHTML = `
                 <tr>
                     <td colspan="13" style="text-align: center; padding: 40px;">
@@ -1325,38 +1441,38 @@
                     </td>
                 </tr>
             `;
-            
+
             try {
-                const url = `${APPS_SCRIPT_URL}?action=getData&search=${encodeURIComponent(searchTerm)}&filter=${encodeURIComponent(filterType)}&spreadsheetId=${encodeURIComponent(SHEET_CONFIG.spreadsheetId)}&spreadsheetName=${encodeURIComponent(SHEET_CONFIG.spreadsheetName)}&sheetName=${encodeURIComponent(SHEET_CONFIG.maintenanceSheetName)}&headers=${encodeURIComponent(JSON.stringify(SHEET_HEADINGS))}&t=${Date.now()}`;
-                
-                const response = await fetch(url, {
-                    method: 'GET',
-                    mode: 'cors',
-                    headers: {
-                        'Accept': 'application/json',
-                    }
+                const result = await appsScriptGet({
+                    action: 'getData',
+                    search: searchTerm,
+                    filter: filterType,
+                    spreadsheetId: SHEET_CONFIG.spreadsheetId,
+                    spreadsheetName: SHEET_CONFIG.spreadsheetName,
+                    sheetName: SHEET_CONFIG.maintenanceSheetName,
+                    headers: JSON.stringify(SHEET_HEADINGS)
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                
+
                 if (result.success) {
                     displayData(result.data || []);
                     updateStats(result.stats || { total: 0, weekly: 0, monthly: 0, yearly: 0 });
-                    showMessage('Data loaded successfully!', 'success');
                 } else {
-                    throw new Error(result.error || 'Unknown error');
+                    throw new Error(result.error || 'Unknown Apps Script error');
                 }
-                
+
             } catch (error) {
                 console.error('Error fetching data:', error);
-                showMessage('Error connecting to Google Sheets. Using sample data.', 'warning');
-                
-                // Show sample data as fallback
-                showSampleData();
+                const message = getFriendlyError(error);
+                showMessage('Error connecting to Google Sheets: ' + message, 'error');
+                document.getElementById('tableBody').innerHTML = `
+                    <tr>
+                        <td colspan="13" style="text-align: center; padding: 35px; color:#e74c3c;">
+                            <strong>Could not connect to Google Sheets.</strong><br>
+                            ${escapeHtml(message)}<br><br>
+                            <button onclick="testGoogleConnection()" class="btn-primary" style="margin: 0 auto; display:inline-flex;">Test Connection</button>
+                        </td>
+                    </tr>
+                `;
             }
         }
 
@@ -1511,19 +1627,10 @@
                 const saveAction = editingMaintenanceRecord ? 'updateData' : 'addData';
                 
                 // Send to Google Apps Script
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        action: saveAction,
-                        data: JSON.stringify(formData)
-                    })
+                const result = await appsScriptPost({
+                    action: saveAction,
+                    data: JSON.stringify(formData)
                 });
-
-                const result = await response.json();
                 
                 if (result.success) {
                     showMessage(editingMaintenanceRecord ? '✅ Maintenance record updated in Google Sheets successfully!' : '✅ Maintenance record saved to Google Sheets successfully!', 'success');
@@ -1539,7 +1646,7 @@
                 
             } catch (error) {
                 console.error('Error saving data:', error);
-                showMessage('❌ Error saving to Google Sheets: ' + error.message, 'error');
+                showMessage('❌ Error saving to Google Sheets: ' + getFriendlyError(error), 'error');
             } finally {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
@@ -1868,7 +1975,7 @@
 
         // Validate form before submit
         function validateForm() {
-            const required = ['jobCardNo', 'makeModel', 'registration', 'reportedDefect', 'completedAction', 'technician'];
+            const required = ['jobCardNo', 'makeModel', 'date', 'odometer', 'registration', 'reportedDefect', 'completedAction', 'technician', 'completionDate'];
             let isValid = true;
             
             required.forEach(field => {
@@ -1941,8 +2048,7 @@
             const tbody = document.getElementById('serviceDueBody');
             tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;"><i class="fas fa-spinner fa-spin"></i> Checking service due vehicles...</td></tr>';
             try {
-                const response = await fetch(`${APPS_SCRIPT_URL}?action=getServiceDue&t=${Date.now()}`, { method: 'GET', mode: 'cors' });
-                const result = await response.json();
+                const result = await appsScriptGet({ action: 'getServiceDue' });
                 if (!result.success) throw new Error(result.error || 'Could not load service due records');
                 displayServiceDue(result.data || []);
                 document.getElementById('serviceDueCount').textContent = (result.data || []).length;
@@ -1954,13 +2060,7 @@
         async function runServiceCheck() {
             showMessage('Running service check. Emails will be sent for due vehicles.', 'warning');
             try {
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ action: 'runServiceCheck' })
-                });
-                const result = await response.json();
+                const result = await appsScriptPost({ action: 'runServiceCheck' });
                 if (!result.success) throw new Error(result.error || 'Service check failed');
                 showMessage(`Service check complete. ${result.alertsSent || 0} email alert(s) sent.`, 'success');
                 fetchServiceDue();
@@ -1994,8 +2094,7 @@
         async function fetchPoolData() {
             const tbody = document.getElementById('poolBody');
             try {
-                const response = await fetch(`${APPS_SCRIPT_URL}?action=getPool&t=${Date.now()}`, { method: 'GET', mode: 'cors' });
-                const result = await response.json();
+                const result = await appsScriptGet({ action: 'getPool' });
                 if (!result.success) throw new Error(result.error || 'Could not load Pool data');
                 displayPoolData(result.data || []);
                 updatePoolStats(result.data || []);
@@ -2068,12 +2167,7 @@
                 submitBtn.disabled = true;
                 showMessage('Synchronising vehicle to Pool sheet...', 'warning');
 
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST', mode: 'cors',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ action: 'savePoolVehicle', data: JSON.stringify(data) })
-                });
-                const result = await response.json();
+                const result = await appsScriptPost({ action: 'savePoolVehicle', data: JSON.stringify(data) });
                 if (!result.success) throw new Error(result.error || 'Could not save pool vehicle');
                 showMessage('Offroad vehicle saved to Pool sheet.', 'success');
                 alert('Synchronisation complete. Vehicle has been added to the Pool sheet.');
@@ -2091,12 +2185,7 @@
         async function updatePoolRepairCost(poolId) {
             const value = document.getElementById(`cost-${poolId}`).value;
             try {
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST', mode: 'cors',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ action: 'updatePoolCost', poolId: poolId, totalRepairCost: value })
-                });
-                const result = await response.json();
+                const result = await appsScriptPost({ action: 'updatePoolCost', poolId: poolId, totalRepairCost: value });
                 if (!result.success) throw new Error(result.error || 'Could not update cost');
                 showMessage('Repair cost updated.', 'success');
                 fetchPoolData();
@@ -2120,17 +2209,11 @@
             try {
                 showMessage('Removing fixed vehicle from Pool sheet...', 'warning');
 
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST', mode: 'cors',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        action: 'removePoolVehicle',
-                        poolId: poolId,
-                        registration: registration || ''
-                    })
+                const result = await appsScriptPost({
+                    action: 'removePoolVehicle',
+                    poolId: poolId,
+                    registration: registration || ''
                 });
-
-                const result = await response.json();
                 if (!result.success) throw new Error(result.error || 'Could not remove vehicle from Pool sheet');
 
                 showMessage('Fixed vehicle removed from Serious Breakdown Pool.', 'success');
