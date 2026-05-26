@@ -521,6 +521,47 @@
             background: #2980b9;
         }
 
+
+        .photo-section {
+            margin: 25px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .photo-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .photo-actions input[type="file"] {
+            flex: 1;
+            min-width: 260px;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+
+        .photo-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            background: white;
+        }
+
         @media (max-width: 768px) {
             .logo-container {
                 flex-direction: column;
@@ -1075,6 +1116,20 @@
                     </div>
                 </div>
 
+
+                <!-- Photo Upload / Camera Capture -->
+                <h3><i class="fas fa-camera"></i> Photos</h3>
+                <div class="photo-section">
+                    <p class="section-note" style="margin-top:0;">Upload pictures or take photos from a phone camera. Photo link columns are added after the existing Service Status heading.</p>
+                    <div class="photo-actions">
+                        <input type="file" id="maintenancePhotos" accept="image/*" capture="environment" multiple>
+                        <button type="button" class="btn-primary" onclick="clearSelectedPhotos()" style="background: var(--accent-color);">
+                            <i class="fas fa-times"></i> Clear Photos
+                        </button>
+                    </div>
+                    <div id="photoPreview" class="photo-preview"></div>
+                </div>
+
                 <!-- Submit Button -->
                 <div class="form-actions">
                     <button type="submit" class="btn-submit">
@@ -1091,17 +1146,43 @@
         // GOOGLE APPS SCRIPT WEB APP URL
         // REPLACE THIS WITH YOUR DEPLOYED APPS SCRIPT URL
         // =============================================
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby56MP_XM4GeYcfHVk3JYW8kxbghFvhd_y0JYJcPTm1dJLJ5dBjS6h_5MF_P-prEYFxQw/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXzyWvfXJKHXgWUSmMOo_Gt_IyB5YPBmaz92a3tgIJJQ2aThQ2ItgDQfzqpXNuXvzZBQ/exec';
         
         // Google Sheets Configuration
         const SHEET_CONFIG = {
             spreadsheetId: '1UOOBScKX64TTIGQRyA89OeVPybIPw031eVhjpvHP7_c',
-            spreadsheetName: 'Distict',
+            spreadsheetName: 'Distinct',
             sheetName: 'Distinct',
             maintenanceSheetName: 'Distinct',
             licenceSheetName: 'Licence',
             driveFileId: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
         };
+
+        // Do not move these existing Google Sheet headings.
+        // Extra photo link columns are appended after Service Status only.
+        const BASE_SHEET_HEADINGS = [
+            'Timestamp',
+            'Job Card No.',
+            'Make/Model',
+            'Date',
+            'Odometer',
+            'Registration',
+            'Reported Defect',
+            'Completed Action',
+            'Parts Used',
+            'Labor Hours',
+            'Comments',
+            'Next Service',
+            'Technician',
+            'Completion Date',
+            'Reminder Date',
+            'Total Cost',
+            'Breakdown Count',
+            'Current Fuel KM',
+            'Service Status'
+        ];
+        const EXTRA_PHOTO_LINK_HEADINGS = ['Photo Link 1', 'Photo Link 2', 'Photo Link 3', 'Photo Link 4', 'Photo Link 5'];
+        const SHEET_HEADINGS = [...BASE_SHEET_HEADINGS, ...EXTRA_PHOTO_LINK_HEADINGS];
 
 
         // Registration numbers used only by Serious Breakdown Pool and New Vehicle Maintenance Record selectors.
@@ -1224,6 +1305,8 @@
             
             // Form submission handler
             document.getElementById('maintenanceForm').addEventListener('submit', handleSubmit);
+            const photoInput = document.getElementById('maintenancePhotos');
+            if (photoInput) photoInput.addEventListener('change', previewSelectedPhotos);
             
             // Costs are manually entered by the user. No totals are auto-calculated.
         });
@@ -1244,7 +1327,7 @@
             `;
             
             try {
-                const url = `${APPS_SCRIPT_URL}?action=getData&search=${encodeURIComponent(searchTerm)}&filter=${encodeURIComponent(filterType)}&spreadsheetId=${encodeURIComponent(SHEET_CONFIG.spreadsheetId)}&spreadsheetName=${encodeURIComponent(SHEET_CONFIG.spreadsheetName)}&sheetName=${encodeURIComponent(SHEET_CONFIG.maintenanceSheetName)}&t=${Date.now()}`;
+                const url = `${APPS_SCRIPT_URL}?action=getData&search=${encodeURIComponent(searchTerm)}&filter=${encodeURIComponent(filterType)}&spreadsheetId=${encodeURIComponent(SHEET_CONFIG.spreadsheetId)}&spreadsheetName=${encodeURIComponent(SHEET_CONFIG.spreadsheetName)}&sheetName=${encodeURIComponent(SHEET_CONFIG.maintenanceSheetName)}&headers=${encodeURIComponent(JSON.stringify(SHEET_HEADINGS))}&t=${Date.now()}`;
                 
                 const response = await fetch(url, {
                     method: 'GET',
@@ -1424,7 +1507,7 @@
             
             try {
                 // Collect form data
-                const formData = collectFormData();
+                const formData = await collectFormData();
                 const saveAction = editingMaintenanceRecord ? 'updateData' : 'addData';
                 
                 // Send to Google Apps Script
@@ -1464,7 +1547,7 @@
         }
 
         // Collect form data into an object
-        function collectFormData() {
+        async function collectFormData() {
             // Collect parts data
             const parts = [];
             const partRows = document.querySelectorAll('.part-row');
@@ -1483,6 +1566,7 @@
             
             // Use only the total cost figure entered by the user.
             const totalCost = document.getElementById('totalCost').value || '0';
+            const photoFiles = await getSelectedPhotoFiles();
             
             return {
                 rowNumber: editingMaintenanceRecord ? (editingMaintenanceRecord.rowNumber || editingMaintenanceRecord.row || editingMaintenanceRecord._row || '') : '',
@@ -1503,6 +1587,14 @@
                 completionDate: document.getElementById('completionDate').value,
                 reminderDate: document.getElementById('reminderDate').value,
                 totalCost: totalCost,
+                breakdownCount: editingMaintenanceRecord ? (editingMaintenanceRecord.breakdownCount || '') : '',
+                currentFuelKM: editingMaintenanceRecord ? (editingMaintenanceRecord.currentFuelKM || '') : '',
+                serviceStatus: editingMaintenanceRecord ? (editingMaintenanceRecord.serviceStatus || '') : '',
+                photoFiles: photoFiles,
+                existingPhotoLinks: editingMaintenanceRecord ? getExistingPhotoLinks(editingMaintenanceRecord) : [],
+                sheetHeaders: SHEET_HEADINGS,
+                baseSheetHeaders: BASE_SHEET_HEADINGS,
+                extraPhotoLinkHeaders: EXTRA_PHOTO_LINK_HEADINGS,
                 spreadsheetId: SHEET_CONFIG.spreadsheetId,
                 spreadsheetName: SHEET_CONFIG.spreadsheetName,
                 sheetName: SHEET_CONFIG.maintenanceSheetName,
@@ -1511,6 +1603,70 @@
             };
         }
 
+
+
+        function getExistingPhotoLinks(record) {
+            return EXTRA_PHOTO_LINK_HEADINGS
+                .map((heading, index) => record[heading] || record[`photoLink${index + 1}`] || record[`photo${index + 1}`] || '')
+                .filter(Boolean);
+        }
+
+        function previewSelectedPhotos() {
+            const input = document.getElementById('maintenancePhotos');
+            const preview = document.getElementById('photoPreview');
+            if (!input || !preview) return;
+
+            preview.innerHTML = '';
+            Array.from(input.files || []).slice(0, EXTRA_PHOTO_LINK_HEADINGS.length).forEach(file => {
+                const img = document.createElement('img');
+                img.alt = file.name;
+                img.src = URL.createObjectURL(file);
+                img.onload = () => URL.revokeObjectURL(img.src);
+                preview.appendChild(img);
+            });
+
+            if ((input.files || []).length > EXTRA_PHOTO_LINK_HEADINGS.length) {
+                showMessage(`Only the first ${EXTRA_PHOTO_LINK_HEADINGS.length} photos will be sent because there are ${EXTRA_PHOTO_LINK_HEADINGS.length} photo link columns.`, 'warning');
+            }
+        }
+
+        function clearSelectedPhotos() {
+            const input = document.getElementById('maintenancePhotos');
+            const preview = document.getElementById('photoPreview');
+            if (input) input.value = '';
+            if (preview) preview.innerHTML = '';
+        }
+
+        function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error || new Error('Could not read photo file'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function getSelectedPhotoFiles() {
+            const input = document.getElementById('maintenancePhotos');
+            const files = Array.from((input && input.files) || []).slice(0, EXTRA_PHOTO_LINK_HEADINGS.length);
+            const maxBytes = 5 * 1024 * 1024;
+            const photoFiles = [];
+
+            for (const file of files) {
+                if (file.size > maxBytes) {
+                    showMessage(`${file.name} is larger than 5MB and was skipped.`, 'warning');
+                    continue;
+                }
+                const dataUrl = await readFileAsDataUrl(file);
+                photoFiles.push({
+                    name: file.name,
+                    mimeType: file.type || 'image/jpeg',
+                    dataUrl: dataUrl,
+                    header: EXTRA_PHOTO_LINK_HEADINGS[photoFiles.length]
+                });
+            }
+            return photoFiles;
+        }
 
         // Load an existing maintenance record into the form for editing
         function editMaintenanceRecord(record) {
@@ -1619,6 +1775,7 @@
             
             // Reset manually-entered total cost
             document.getElementById('totalCost').value = '0';
+            clearSelectedPhotos();
         }
 
         // Add new part row
